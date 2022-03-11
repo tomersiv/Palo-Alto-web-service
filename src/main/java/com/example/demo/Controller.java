@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RestController
-public class Controller {
+public class Controller {a
     private AtomicInteger totalWords = new AtomicInteger(0);
     private AtomicInteger totalRequests = new AtomicInteger(0);
     private AtomicInteger totalRequestsTime = new AtomicInteger(0);
