@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RestController
-public class Controller {a
+public class Controller {
     private AtomicInteger totalWords = new AtomicInteger(0);
     private AtomicInteger totalRequests = new AtomicInteger(0);
     private AtomicInteger totalRequestsTime = new AtomicInteger(0);
@@ -80,8 +80,7 @@ public class Controller {a
     public String objectToJson(Object o) {
         ObjectMapper Obj = new ObjectMapper();
         try {
-            String jsonStr = Obj.writeValueAsString(o);
-            return jsonStr;
+            return Obj.writeValueAsString(o);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
