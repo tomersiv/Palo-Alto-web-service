@@ -56,7 +56,7 @@ public class Controller {
 
     @GetMapping("api/v1/stats")
     public String stats(){
-            //get total words num
+            //get total words number
             try {
                 Stream<String> lines = Files.lines(Paths.get("words_clean.txt"));
                 totalWords.set((int)lines.count());
