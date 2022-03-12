@@ -33,6 +33,7 @@ public class Controller {
         totalWords.set(wordsInFile.size());
         totalRequests.incrementAndGet();
 
+        // TODO: need to check what should we do in case word is empty
         // check each word in the file to see if it is a permutation of word
         simWords = filterSimilarWords(wordsInFile, word);
 
@@ -42,16 +43,34 @@ public class Controller {
         return objectToJson(similar);
     }
 
-    public List<String> filterSimilarWords(List<String> words, String word) {
+    public List<String> filterSimilarWords(List<String> words, String word) { //TODO: maybe add a hashmap optimization
         List<String> res = new ArrayList<>();
         Set<Character> s= new HashSet<>();
-        for(int i = 0; i < word.length(); i++)
+
+        char maxChar = word.charAt(0);
+        for(int i = 0; i < word.length(); i++) {
             s.add(word.charAt(i));
+            if (word.charAt(i) - 'a' > maxChar - 'a')
+                maxChar = word.charAt(i);
+        }
+
         for(String w : words) {
-            if(word.length() == w.length() && s.contains(w.charAt(0)) && !word.equals(w) && checkSimilarity(word, w))
+            if(maxChar < w.charAt(0)) // this line is an optimization to reduce the amount of iterations
+                break;
+            if(word.length() == w.length() && s.contains(w.charAt(0))  // this line is also an optimization
+                    && !word.equals(w) && checkSimilarity(word, w))
                 res.add(w);
         }
         return res;
+    }
+
+    public char findMaxChar(String word) {
+        char maxChar = word.charAt(0);
+        for(int i = 0; i < word.length(); i++){
+            if(word.charAt(i) - 'a' > maxChar - 'a')
+                maxChar = word.charAt(i);
+        }
+        return maxChar;
     }
 
     @GetMapping("api/v1/stats")
