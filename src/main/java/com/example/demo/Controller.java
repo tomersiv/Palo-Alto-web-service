@@ -98,8 +98,6 @@ public class Controller {
     }
 
     public boolean checkSimilarity(String word1, String word2) {
-        if (word1.length() != word2.length())
-            return false;
         int[] count = new int[26];
         int i;
         for (i = 0; i < word1.length(); i++) {
