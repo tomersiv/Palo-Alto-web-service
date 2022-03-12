@@ -17,7 +17,4 @@ This function calculates totalWords, totalRequests and avgProcessingTimeNs and r
 
 - **Calculating totalWords :** Count number of words in words_clean.txt file (words are seperated by '\n').
 - **Calculating totalRequests :** Manage a counter that is incremented every time a HTTP Get request to /api/v1/similar is performed.
-- **Calculating avgProcessingTimeNs :** We accumulate the duration time of all GET request to /api/v1/similar that were performed and then divide it by the total amount of GET requests to /api/v1/similar. We calculate the duration time of each GET request to /api/v1/similar by managing two variables that captures the time in the beginning and in the end of the similarWords() function, then we substract the two variables to get the duration time.  
-
-
-
+- **Calculating avgProcessingTimeNs :** We accumulate the duration time of all GET requests to /api/v1/similar that were performed and then divide it by the total amount of GET requests to /api/v1/similar. We calculate the duration time of each GET request to /api/v1/similar by managing two variables that captures the time in the beginning and in the end of the similarWords() function, then we substract the two variables to get the duration time.  
