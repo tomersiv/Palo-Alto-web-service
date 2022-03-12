@@ -64,15 +64,6 @@ public class Controller {
         return res;
     }
 
-    public char findMaxChar(String word) {
-        char maxChar = word.charAt(0);
-        for(int i = 0; i < word.length(); i++){
-            if(word.charAt(i) - 'a' > maxChar - 'a')
-                maxChar = word.charAt(i);
-        }
-        return maxChar;
-    }
-
     @GetMapping("api/v1/stats")
     public String stats(){
             //get total words number
