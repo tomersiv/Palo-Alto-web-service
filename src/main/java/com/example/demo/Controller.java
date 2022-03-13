@@ -29,7 +29,7 @@ public class Controller {
         totalRequests.incrementAndGet();
         AtomicLong startTime = new AtomicLong(System.nanoTime());
 
-        if(word.isEmpty()){
+        if (word.isEmpty()) {
             totalRequestsTime.addAndGet((int) (System.nanoTime() - startTime.get()));
             return objectToJson(new SimilarWords(new ArrayList<>()));
         }
