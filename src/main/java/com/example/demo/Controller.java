@@ -26,38 +26,40 @@ public class Controller {
 
     @GetMapping("api/v1/similar")
     public String similarWords(@RequestParam(value = "word", defaultValue = "") String word) {
-        AtomicLong startTime = new AtomicLong(System.nanoTime());
-        List<String> wordsInFile = new ArrayList<>();
-        List<String> simWords;
-        wordsInFile = readFromFile("words_clean.txt", wordsInFile);
-        totalWords.set(wordsInFile.size());
         totalRequests.incrementAndGet();
+        AtomicLong startTime = new AtomicLong(System.nanoTime());
 
-        // TODO: need to check what should we do in case word is empty
+        if(word.isEmpty()){
+            totalRequestsTime.addAndGet((int) (System.nanoTime() - startTime.get()));
+            return objectToJson(new SimilarWords(new ArrayList<>()));
+        }
+
+        List<String> simWords, wordsInFile = new ArrayList<>();
+        wordsInFile = readFromFile("words_clean.txt", wordsInFile);
+
         // check each word in the file to see if it is a permutation of word
         simWords = filterSimilarWords(wordsInFile, word);
 
         SimilarWords similar = new SimilarWords(simWords);
-        AtomicLong endTime = new AtomicLong(System.nanoTime());
-        totalRequestsTime.addAndGet((int)(endTime.get() - startTime.get()));
+        totalRequestsTime.addAndGet((int) (System.nanoTime() - startTime.get()));
         return objectToJson(similar);
     }
 
     public List<String> filterSimilarWords(List<String> words, String word) { //TODO: maybe add a hashmap optimization
         List<String> res = new ArrayList<>();
-        Set<Character> s= new HashSet<>();
+        Set<Character> s = new HashSet<>();
 
         char maxChar = word.charAt(0);
-        for(int i = 0; i < word.length(); i++) {
+        for (int i = 0; i < word.length(); i++) {
             s.add(word.charAt(i));
             if (word.charAt(i) - 'a' > maxChar - 'a')
                 maxChar = word.charAt(i);
         }
 
-        for(String w : words) {
-            if(maxChar < w.charAt(0)) // this line is an optimization to reduce the amount of iterations
+        for (String w : words) {
+            if (maxChar < w.charAt(0)) // this line is an optimization to reduce the amount of iterations
                 break;
-            if(word.length() == w.length() && s.contains(w.charAt(0))  // this line is also an optimization
+            if (word.length() == w.length() && s.contains(w.charAt(0))  // this line is also an optimization
                     && !word.equals(w) && checkSimilarity(word, w))
                 res.add(w);
         }
@@ -65,20 +67,20 @@ public class Controller {
     }
 
     @GetMapping("api/v1/stats")
-    public String stats(){
-            //get total words number
-            try {
-                Stream<String> lines = Files.lines(Paths.get("words_clean.txt"));
-                totalWords.set((int)lines.count());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    public String stats() {
+        //get total words number
+        try {
+            Stream<String> lines = Files.lines(Paths.get("words_clean.txt"));
+            totalWords.set((int) lines.count());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         int avgRequestTime = totalRequests.get() != 0 ? (totalRequestsTime.get() / totalRequests.get()) : totalRequestsTime.get();
         Stats stats = new Stats(totalWords.get(), totalRequests.get(), avgRequestTime);
         return objectToJson(stats);
     }
 
-    public List<String> readFromFile(String pathName, List<String> lst){
+    public List<String> readFromFile(String pathName, List<String> lst) {
         try (Stream<String> lines = Files.lines(Paths.get(pathName))) {
             lst = lines.collect(Collectors.toList());
         } catch (IOException e) {
