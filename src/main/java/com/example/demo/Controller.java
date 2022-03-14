@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 public class Controller {
     private AtomicInteger totalWords = new AtomicInteger(0);
     private AtomicInteger totalRequests = new AtomicInteger(0);
-    private AtomicInteger totalRequestsTime = new AtomicInteger(0);
+    private AtomicInteger totalRequestsTime = new AtomicInteger(0);a
 
     @GetMapping("api/v1/similar")
     public String similarWords(@RequestParam(value = "word", defaultValue = "") String word) {
