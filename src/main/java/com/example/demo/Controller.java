@@ -65,7 +65,7 @@ public class Controller {
 
     @GetMapping("api/v1/stats")
     public String stats() {
-        AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (totalRequestsTime.get() / totalRequests.get()) : totalRequestsTime.get());
+        AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (totalRequestsTime.get() / totalRequests.get()) : 0);
         Stats stats = new Stats(totalWords, totalRequests.get(), avgRequestTime.get());
         return objectToJson(stats);
     }
