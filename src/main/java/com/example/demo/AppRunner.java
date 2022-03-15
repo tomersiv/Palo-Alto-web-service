@@ -20,22 +20,22 @@ public class AppRunner implements CommandLineRunner {
     public void run(String... args) throws Exception {
         long start = System.currentTimeMillis();
 
-        // Kick of multiple, asynchronous lookups
-        CompletableFuture<SimilarWords> page1 = controller.similarWords("apple");
-        //CompletableFuture<SimilarWords> page2 = controller.similarWords("father");
-        //CompletableFuture<SimilarWords> page3 = controller.similarWords("");
-        //CompletableFuture<SimilarWords> page4 = controller.similarWords("mother");
-        CompletableFuture<Stats> page5 = controller.stats();
+        // Kick of multiple, asynchronous tasks
+        CompletableFuture<SimilarWords> task1 = controller.similarWords("apple");
+        CompletableFuture<SimilarWords> task2 = controller.similarWords("father");
+        CompletableFuture<SimilarWords> task3 = controller.similarWords("");
+        CompletableFuture<SimilarWords> task4 = controller.similarWords("mother");
+        CompletableFuture<Stats> task5 = controller.stats();
 
         // Wait until they are all done
-        CompletableFuture.allOf(page1, page5).join();
+        CompletableFuture.allOf(task1, task2, task3, task4, task5).join();
 
         // Print results, including elapsed time
         logger.info("Elapsed time: " + (System.currentTimeMillis() - start));
-        logger.info("--> " + page1.get());
-        //logger.info("--> " + page2.get());
-        //logger.info("--> " + page3.get());
-        //logger.info("--> " + page4.get());
-        logger.info("--> " + page5.get());
+        logger.info("--> " + task1.get());
+        logger.info("--> " + task2.get());
+        logger.info("--> " + task3.get());
+        logger.info("--> " + task4.get());
+        logger.info("--> " + task5.get());
     }
 }

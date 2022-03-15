@@ -40,8 +40,10 @@ public class Controller {
 
         if (word.isEmpty()) {
             totalRequests.incrementAndGet();
-            totalRequestsTime.addAndGet((int) (System.nanoTime() - startTime.get()));
-            System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
+            AtomicLong duration = new AtomicLong(System.nanoTime() - startTime.get());
+            System.out.println("request handle time: " + (duration));
+            totalRequestsTime.addAndGet((int) duration.get());
+            //System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
             //Thread.sleep(1000L);
             return CompletableFuture.completedFuture((new SimilarWords(new ArrayList<>())));
         }
@@ -51,9 +53,11 @@ public class Controller {
 
         SimilarWords similar = new SimilarWords(simWords);
         totalRequests.incrementAndGet();
-        totalRequestsTime.addAndGet((int) (System.nanoTime() - startTime.get()));
+        AtomicLong duration = new AtomicLong(System.nanoTime() - startTime.get());
+        System.out.println("request handle time: " + (duration));
+        totalRequestsTime.addAndGet((int) duration.get());
         //Thread.sleep(1000L);
-        System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
+        //System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
         return CompletableFuture.completedFuture(similar);
     }
 
@@ -80,8 +84,8 @@ public class Controller {
     @Async
     public CompletableFuture<Stats> stats() throws InterruptedException {
         logger.info("Calculating stats...");
-        //Thread.sleep(1000L);
-        System.out.println("totalRequestTime in stats: " + totalRequestsTime);
+        Thread.sleep(1000L);
+        //System.out.println("totalRequestTime in stats: " + totalRequestsTime);
         AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (totalRequestsTime.get() / totalRequests.get()) : totalRequestsTime.get());
         Stats stats = new Stats(totalWords, totalRequests.get(), avgRequestTime.get());
         //Thread.sleep(1000L);
