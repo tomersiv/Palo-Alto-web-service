@@ -2,6 +2,10 @@ package com.example.demo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,25 +17,36 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RestController
+@Service
 public class Controller {
     private AtomicInteger totalWords = new AtomicInteger(0);
     private AtomicInteger totalRequests = new AtomicInteger(0);
-    private AtomicInteger totalRequestsTime = new AtomicInteger(0);a
+    private AtomicInteger totalRequestsTime = new AtomicInteger(0);
+    private AtomicInteger avgRequestTime = new AtomicInteger(0);
+    private static final Logger logger = LoggerFactory.getLogger(Controller.class);
+
+    //TODO: remove this!!
+    private List<String> wordsChecked = new ArrayList<>();
 
     @GetMapping("api/v1/similar")
-    public String similarWords(@RequestParam(value = "word", defaultValue = "") String word) {
+    @Async
+    public CompletableFuture<SimilarWords> similarWords(@RequestParam(value = "word", defaultValue = "") String word) throws InterruptedException {
+        logger.info("Finding similar words to " + word);
         totalRequests.incrementAndGet();
         AtomicLong startTime = new AtomicLong(System.nanoTime());
 
         if (word.isEmpty()) {
             totalRequestsTime.addAndGet((int) (System.nanoTime() - startTime.get()));
-            return objectToJson(new SimilarWords(new ArrayList<>()));
+            System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
+            //Thread.sleep(1000L);
+            return CompletableFuture.completedFuture((new SimilarWords(new ArrayList<>())));
         }
 
         List<String> simWords, wordsInFile = new ArrayList<>();
@@ -42,10 +57,12 @@ public class Controller {
 
         SimilarWords similar = new SimilarWords(simWords);
         totalRequestsTime.addAndGet((int) (System.nanoTime() - startTime.get()));
-        return objectToJson(similar);
+        //Thread.sleep(1000L);
+        System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
+        return CompletableFuture.completedFuture(similar);
     }
 
-    public List<String> filterSimilarWords(List<String> words, String word) { //TODO: maybe add a hashmap optimization
+    public List<String> filterSimilarWords(List<String> words, String word) {
         List<String> res = new ArrayList<>();
         Set<Character> s = new HashSet<>();
 
@@ -67,17 +84,24 @@ public class Controller {
     }
 
     @GetMapping("api/v1/stats")
-    public String stats() {
-        //get total words number
+    @Async
+    public CompletableFuture<Stats> stats() throws InterruptedException {
+        logger.info("Calculating stats...");
         try {
             Stream<String> lines = Files.lines(Paths.get("words_clean.txt"));
             totalWords.set((int) lines.count());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        int avgRequestTime = totalRequests.get() != 0 ? (totalRequestsTime.get() / totalRequests.get()) : totalRequestsTime.get();
-        Stats stats = new Stats(totalWords.get(), totalRequests.get(), avgRequestTime);
-        return objectToJson(stats);
+        Thread.sleep(1000L);
+        System.out.println("totalRequestTime in stats: " + totalRequestsTime);
+        avgRequestTime.set(totalRequests.get() != 0 ? (totalRequestsTime.get() / totalRequests.get()) : totalRequestsTime.get());
+        Stats stats = new Stats(totalWords.get(), totalRequests.get(), avgRequestTime.get());
+
+        //TODO: remove this!!
+        //Thread.sleep(1000L);
+        //System.out.println(totalRequestsTime);
+        return CompletableFuture.completedFuture(stats);
     }
 
     public List<String> readFromFile(String pathName, List<String> lst) {

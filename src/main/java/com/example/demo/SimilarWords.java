@@ -12,4 +12,11 @@ public class SimilarWords {
     public List<String> getsimilar() {
         return similar;
     }
+
+    @Override
+    public String toString() {
+        return "SimilarWords{" +
+                "similar=" + similar +
+                '}';
+    }
 }
