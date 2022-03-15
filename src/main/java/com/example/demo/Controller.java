@@ -86,7 +86,7 @@ public class Controller {
         logger.info("Calculating stats...");
         Thread.sleep(1000L);
         //System.out.println("totalRequestTime in stats: " + totalRequestsTime);
-        AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (totalRequestsTime.get() / totalRequests.get()) : totalRequestsTime.get());
+        AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (totalRequestsTime.get() / totalRequests.get()) : 0);
         Stats stats = new Stats(totalWords, totalRequests.get(), avgRequestTime.get());
         //Thread.sleep(1000L);
         //System.out.println(totalRequestsTime);
