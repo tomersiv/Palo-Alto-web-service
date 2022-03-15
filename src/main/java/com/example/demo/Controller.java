@@ -44,7 +44,7 @@ public class Controller {
         return objectToJson(similar);
     }
 
-    public List<String> filterSimilarWords(List<String> words, String word) { //TODO: maybe add a hashmap optimization
+    public List<String> filterSimilarWords(List<String> words, String word) {
         List<String> res = new ArrayList<>();
         Set<Character> s = new HashSet<>();
         char maxChar = word.charAt(0);
