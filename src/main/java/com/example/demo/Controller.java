@@ -26,36 +26,31 @@ import java.util.stream.Stream;
 @RestController
 @Service
 public class Controller {
-    private AtomicInteger totalWords = new AtomicInteger(0);
+    private static final int totalWords = 351075;
     private AtomicInteger totalRequests = new AtomicInteger(0);
     private AtomicInteger totalRequestsTime = new AtomicInteger(0);
-    private AtomicInteger avgRequestTime = new AtomicInteger(0);
+    private List<String> wordsInFile = readFromFile("words_clean.txt");
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
-
-    //TODO: remove this!!
-    private List<String> wordsChecked = new ArrayList<>();
 
     @GetMapping("api/v1/similar")
     @Async
     public CompletableFuture<SimilarWords> similarWords(@RequestParam(value = "word", defaultValue = "") String word) throws InterruptedException {
         logger.info("Finding similar words to " + word);
-        totalRequests.incrementAndGet();
         AtomicLong startTime = new AtomicLong(System.nanoTime());
 
         if (word.isEmpty()) {
+            totalRequests.incrementAndGet();
             totalRequestsTime.addAndGet((int) (System.nanoTime() - startTime.get()));
             System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
             //Thread.sleep(1000L);
             return CompletableFuture.completedFuture((new SimilarWords(new ArrayList<>())));
         }
 
-        List<String> simWords, wordsInFile = new ArrayList<>();
-        wordsInFile = readFromFile("words_clean.txt", wordsInFile);
-
         // check each word in the file to see if it is a permutation of word
-        simWords = filterSimilarWords(wordsInFile, word);
+        List<String> simWords = filterSimilarWords(wordsInFile, word);
 
         SimilarWords similar = new SimilarWords(simWords);
+        totalRequests.incrementAndGet();
         totalRequestsTime.addAndGet((int) (System.nanoTime() - startTime.get()));
         //Thread.sleep(1000L);
         System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
@@ -65,14 +60,12 @@ public class Controller {
     public List<String> filterSimilarWords(List<String> words, String word) {
         List<String> res = new ArrayList<>();
         Set<Character> s = new HashSet<>();
-
         char maxChar = word.charAt(0);
         for (int i = 0; i < word.length(); i++) {
             s.add(word.charAt(i));
             if (word.charAt(i) - 'a' > maxChar - 'a')
                 maxChar = word.charAt(i);
         }
-
         for (String w : words) {
             if (maxChar < w.charAt(0)) // this line is an optimization to reduce the amount of iterations
                 break;
@@ -87,24 +80,17 @@ public class Controller {
     @Async
     public CompletableFuture<Stats> stats() throws InterruptedException {
         logger.info("Calculating stats...");
-        try {
-            Stream<String> lines = Files.lines(Paths.get("words_clean.txt"));
-            totalWords.set((int) lines.count());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Thread.sleep(1000L);
+        //Thread.sleep(1000L);
         System.out.println("totalRequestTime in stats: " + totalRequestsTime);
-        avgRequestTime.set(totalRequests.get() != 0 ? (totalRequestsTime.get() / totalRequests.get()) : totalRequestsTime.get());
-        Stats stats = new Stats(totalWords.get(), totalRequests.get(), avgRequestTime.get());
-
-        //TODO: remove this!!
+        AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (totalRequestsTime.get() / totalRequests.get()) : totalRequestsTime.get());
+        Stats stats = new Stats(totalWords, totalRequests.get(), avgRequestTime.get());
         //Thread.sleep(1000L);
         //System.out.println(totalRequestsTime);
         return CompletableFuture.completedFuture(stats);
     }
 
-    public List<String> readFromFile(String pathName, List<String> lst) {
+    public List<String> readFromFile(String pathName) {
+        List<String> lst = new ArrayList<>();
         try (Stream<String> lines = Files.lines(Paths.get(pathName))) {
             lst = lines.collect(Collectors.toList());
         } catch (IOException e) {
