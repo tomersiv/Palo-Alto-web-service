@@ -35,24 +35,26 @@ A constant-spaced count arrray of size 26 (number of lowercase English letters) 
 This algorithm iterates over all permutations of the input string and checks, for each permutation, if the dictionary contains it using binary search. **Note that we can use binary search on the dictionary file because the strings in that file are sorted lexicographically.**  
   
   
-The algorithm for creating all permutations of a given string 'str' uses the backtracking approach:  
+My algorithm for creating all permutations of a given string 'str' uses the backtracking approach:  
 - The generatePermutation function considers the first index of the given string.
 - If the index is end - 1, i.e. length of the string, it means that the current permutation is completed.
 - Run a loop from current index 'start' till end – 1 and do the following:
   - Swap str[j] and str[start].
-  - Construct all other possible permutations, from backtrack(start + 1).
-  - Backtrack again, i.e. swap(str[j], str[start]).
+  - Construct all other possible permutations, from generatePermutation(start + 1).
+  - Backtrack again, i.e. swap(str[j], str[start]).  
+    
+  **An illustration of the algorithm on string 'ABC':**  
  
  ![This is an image](https://static.javatpoint.com/programs/images/program-to-find-all-the-permutations-of-a-string.png)  
    
    
  - **Time Complexity - O(K!⋅K⋅logN), where K is the length of the input string and N is the number of words in the dictionary file.**  
- - **Space Complexity - O(K!), where K is the length of the input string. This is because the function will be called recursively and will be stored in call stack for all K! permutations.**  
+ - **Space Complexity - O(K!), where K is the length of the input string. This is because the function will be called recursively and will be stored in the call stack for all K! permutations.**  
    
      
-**By default, my program uses the first algorithm, however there are some cases that the seccond algorithm will have better performance. Upon checking both algorithms' performance, I noticed that the second algorithm will have better performance when the input string's length is between 1 and 7, and will have really bad performance when the length is above 10.**  
+**By default, my program uses the first algorithm. Upon checking both algorithms' performance, I noticed that the second algorithm will have a better performance (about 10 times faster) when the input string's length is between 1 and 7, in any other case, the first algorithm would be preferable. I also noticed that the second algorithm will have a really bad performance when the input string's length is above 10.**  
   
-### *In order to support the second algorithm instead of the first one, simply comment line 51 and uncomment lines 53, 54 in the Controller class.*
+### *In order to support the second algorithm instead of the first one, simply comment line 36 and uncomment lines 38, 39 in the Controller class.*
   
   
   
