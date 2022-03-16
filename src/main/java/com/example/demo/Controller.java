@@ -96,32 +96,29 @@ public class Controller {
         return true;
     }
 
-    public String swapString(String a, int i, int j) {
-        char[] b =a.toCharArray();
-        char ch;
-        ch = b[i];
-        b[i] = b[j];
-        b[j] = ch;
-        return String.valueOf(b);
-    }
     public Set<String> generatePermutation(Set<String> res, String str, int start, int end, List<String> words) {
         if (start == end - 1) {
             int i = Collections.binarySearch(words, str);
             if (i >= 0)
                 res.add(str);
         }
-            else {
-                for (int j = start; j < end; j++) {
-                    //Swapping the string by fixing a character
-                    str = swapString(str, start, j);
-                    //Recursively calling function generatePermutation() for rest of the characters
-                    generatePermutation(res, str, start + 1, end, words);
-                    //Backtracking and swapping the characters again.
-                    str = swapString(str, start, j);
-                }
+        else {
+            for (int j = start; j < end; j++) {
+                str = swap(str, start, j);
+                generatePermutation(res, str, start + 1, end, words);
+                str = swap(str, start, j);
             }
-            return res;
         }
+        return res;
+    }
+
+    public String swap(String s, int i, int j) {
+        char[] ch = s.toCharArray();
+        char temp = ch[i];
+        ch[i] = ch[j];
+        ch[j] = temp;
+        return String.valueOf(ch);
+    }
 
         @GetMapping("api/v1/stats")
         @Async
