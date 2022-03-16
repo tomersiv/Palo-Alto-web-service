@@ -17,7 +17,7 @@ We create a constant-spaced count arrray of size 26 (number of lowercase English
   
 **Some optimizations that I made to decrease the average processing time while iterating over the dictionary file looking for a similar word to the input string:**
 - Compared the length of both strings, and only if they are equal, continued to check if strings are similar (because similar strings must be with the same length).
-- Checked if the input string's chars contain the first char of a word in the list (using HashSet), and only if they do, continued to check if strings are similar.
+- Checked if the input string's chars contain the first char of a word in the list (in O(1) using HashSet), and only if they do, continued to check if strings are similar.
 - Calculated the input string's char with the maximum value and checked if a word in the list starts with a char that has a greater value than this maximum, if it does, we can stop the iteration and break from the whole loop because the words in the dictionary file are sorted lexicographically and we can use it to our advantage.
       
 - **Time Complexity - O(N⋅K), where K is the length of the input string and N is the number of words in the dictionary file.**  
@@ -39,9 +39,16 @@ The algorithm for creating all permutations of a given string 'str' uses the bac
    
    
  - **Time Complexity - O(K!⋅K⋅logN), where K is the length of the input string and N is the number of words in the dictionary file.**  
- - **Space Complexity - O(K!), where K is the length of the input string. This is because the function will be called recursively and will be stored in call stack for all K! permutations.**
-
-
+ - **Space Complexity - O(K!), where K is the length of the input string. This is because the function will be called recursively and will be stored in call stack for all K! permutations.**  
+   
+     
+**By default, my program uses the first algorithm, however there are some cases that the seccond algorithm will have better performance. Upon checking both algorithms' performance, I noticed that the second algorithm will have better performance when the input string's length is between 1 and 7, and will have really bad performance when the length is above 10.**  
+  
+### *In order to support the second algorithm instead of the first one, simply comment line 51 and uncomment lines 53, 54 in the Controller class.*
+  
+  
+  
+  
 ### stats() function:
 This function returns a json object consisting of three integers: totalWords, totalRequests and avgProcessingTimeNs. 
 
