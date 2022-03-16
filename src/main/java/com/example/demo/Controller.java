@@ -29,11 +29,11 @@ public class Controller {
         if (word.isEmpty()) {
             totalRequests.incrementAndGet();
             totalRequestsTime.addAndGet((int) (System.nanoTime() - startTime.get()));
-            return objectToJson(new SimilarWords(new ArrayList<>()));
+            return objectToJson(new SimilarWords(new HashSet<>()));
         }
 
         // check each word in the file to see if it is a permutation of word
-        List<String> simWords = filterSimilarWords(wordsInFile, word);
+        Set<String> simWords = filterSimilarWords(wordsInFile, word);
 
         // Set<String> similarSet = generatePermutation(new HashSet<>(), word, 0, word.length(), wordsInFile);
         // similarSet.remove(word);
@@ -45,8 +45,8 @@ public class Controller {
         return objectToJson(similar);
     }
 
-    public List<String> filterSimilarWords(List<String> words, String word) {
-        List<String> res = new ArrayList<>();
+    public Set<String> filterSimilarWords(List<String> words, String word) {
+        Set<String> res = new HashSet<>();
         Set<Character> s = new HashSet<>();
         char maxChar = word.charAt(0);
         for (int i = 0; i < word.length(); i++) {

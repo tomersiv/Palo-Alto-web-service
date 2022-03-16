@@ -1,15 +1,15 @@
 package com.example.demo;
 
-import java.util.List;
+import java.util.Set;
 
 public class SimilarWords {
-    private List<String> similar;
+    private Set<String> similar;
 
-    public SimilarWords(List<String> similar){
+    public SimilarWords(Set<String> similar){
         this.similar = similar;
     }
 
-    public List<String> getsimilar() {
+    public Set<String> getsimilar() {
         return similar;
     }
 }
