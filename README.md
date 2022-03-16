@@ -1,9 +1,17 @@
 # This application is a RESTful Web Service developed with Java Spring Boot.
 ## Instructions on how to build and run the program:
 1. Clone this repository into a folder in your computer.
-2. Open a PowerShell window inside 'Palo-Alto-web-service' folder (click shift + right mouse inside the folder then "Open PowerShell window here")
-3. inside the PowerShell run **./mvnw spring-boot:run**
-4. There you go, the web service is up and running!! 
+2. Download java jdk 1.8 or later from [here](https://www.oracle.com/java/technologies/downloads/).
+3. Type **"environment"** in the windows search bar (bottom-left corner) and on the following window, click on **Edit the system environment variables**, click on **Environment Variables.**
+4. Click **New** to create a new environment variable.
+5. On the **Variable name** type **"JAVA_HOME"**, and on the **Variable value** browse to the installation folder of you java jdk. Click **OK**.   
+6. Navigate to the folder where you cloned the repisotory, then open a PowerShell window inside 'Palo-Alto-web-service' folder (click shift + right mouse inside the folder then "Open PowerShell window here")
+7. inside the PowerShell run **./mvnw spring-boot:run**
+8. There you go, the web service is up and running!! you can now send GET requests through these routes:
+   - http://localhost:8000/api/v1/similar
+   - http://localhost:8000/api/v1/stats  
+    
+    
 ## Algorithm Explanation:
 First, using the @GetMapping annotation, we ensure that HTTP GET requests to /api/v1/similar and to api/v1/stats are mapped to the similarWords() and stats() functions respectively.
 ### similarWords() function:
