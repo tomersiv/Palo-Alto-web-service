@@ -28,7 +28,7 @@ public class AppRunner implements CommandLineRunner {
         CompletableFuture<Stats> task5 = controller.stats();
 
         // Wait until they are all done
-        CompletableFuture.allOf(task1, task2, task3, task4, task5).join();
+        CompletableFuture.allOf(task1, task5).join();
 
         // Print results, including elapsed time
         logger.info("Elapsed time: " + (System.currentTimeMillis() - start));

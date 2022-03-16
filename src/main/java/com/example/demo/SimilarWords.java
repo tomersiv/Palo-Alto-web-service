@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import java.util.List;
+import java.util.Set;
 
 public class SimilarWords {
     private List<String> similar;
