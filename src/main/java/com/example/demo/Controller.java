@@ -33,8 +33,9 @@ public class Controller {
 
     @GetMapping("api/v1/similar")
     @Async
-    public CompletableFuture<SimilarWords> similarWords(@RequestParam(value = "word", defaultValue = "") String word) throws InterruptedException {
+    public CompletableFuture<String> similarWords(@RequestParam(value = "word", defaultValue = "") String word) throws InterruptedException {
         logger.info("Finding similar words to " + word);
+        Thread.sleep(1000L);
         AtomicLong startTime = new AtomicLong(System.nanoTime());
 
         if (word.isEmpty()) {
@@ -43,8 +44,7 @@ public class Controller {
             System.out.println("request handle time: " + (duration));
             totalRequestsTime.addAndGet((int) duration.get());
             //System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
-            //Thread.sleep(1000L);
-            return CompletableFuture.completedFuture((new SimilarWords(new HashSet<>())));
+            return CompletableFuture.completedFuture(objectToJson(new SimilarWords(new HashSet<>())));
         }
 
         // check each word in the file to see if it is a permutation of word
@@ -58,9 +58,8 @@ public class Controller {
         AtomicLong duration = new AtomicLong(System.nanoTime() - startTime.get());
         System.out.println("request handle time: " + (duration));
         totalRequestsTime.addAndGet((int) duration.get());
-        //Thread.sleep(1000L);
         //System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
-        return CompletableFuture.completedFuture(similar);
+        return CompletableFuture.completedFuture(objectToJson(similar));
     }
 
     public Set<String> filterSimilarWords(List<String> words, String word) {
@@ -122,7 +121,7 @@ public class Controller {
 
         @GetMapping("api/v1/stats")
         @Async
-        public CompletableFuture<Stats> stats () throws InterruptedException {
+        public CompletableFuture<String> stats () throws InterruptedException {
             logger.info("Calculating stats...");
             Thread.sleep(1000L);
             //System.out.println("totalRequestTime in stats: " + totalRequestsTime);
@@ -130,7 +129,7 @@ public class Controller {
             Stats stats = new Stats(totalWords, totalRequests.get(), avgRequestTime.get());
             //Thread.sleep(1000L);
             //System.out.println(totalRequestsTime);
-            return CompletableFuture.completedFuture(stats);
+            return CompletableFuture.completedFuture(objectToJson(stats));
         }
 
         public List<String> readFromFile (String pathName){
