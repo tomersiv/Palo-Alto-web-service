@@ -50,8 +50,8 @@ public class Controller {
         // check each word in the file to see if it is a permutation of word
         Set<String> simWords = filterSimilarWords(wordsInFile, word);
 
-//        Set<String> similarSet = generatePermutation(new HashSet<>(), word, 0, word.length(), wordsInFile);
-//        similarSet.remove(word);
+//        Set<String> simWords = generatePermutation(new HashSet<>(), word, 0, word.length(), wordsInFile);
+//        simWords.remove(word);
 
         SimilarWords similar = new SimilarWords(simWords);
         totalRequests.incrementAndGet();
