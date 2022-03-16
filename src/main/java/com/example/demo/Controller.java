@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -38,6 +35,10 @@ public class Controller {
         // check each word in the file to see if it is a permutation of word
         List<String> simWords = filterSimilarWords(wordsInFile, word);
 
+        // Set<String> similarSet = generatePermutation(new HashSet<>(), word, 0, word.length(), wordsInFile);
+        // similarSet.remove(word);
+        // List<String> simWords = similarSet.stream().collect(Collectors.toList());
+
         SimilarWords similar = new SimilarWords(simWords);
         totalRequests.incrementAndGet();
         totalRequestsTime.addAndGet((int) (System.nanoTime() - startTime.get()));
@@ -59,6 +60,33 @@ public class Controller {
             if (word.length() == w.length() && s.contains(w.charAt(0))  // this line is also an optimization
                     && !word.equals(w) && checkSimilarity(word, w))
                 res.add(w);
+        }
+        return res;
+    }
+
+    public String swapString(String a, int i, int j) {
+        char[] b =a.toCharArray();
+        char ch;
+        ch = b[i];
+        b[i] = b[j];
+        b[j] = ch;
+        return String.valueOf(b);
+    }
+    public Set<String> generatePermutation(Set<String> res, String str, int start, int end, List<String> words) {
+        if (start == end - 1) {
+            int i = Collections.binarySearch(words, str);
+            if (i >= 0)
+                res.add(str);
+        }
+        else {
+            for (int j = start; j < end; j++) {
+                //Swapping the string by fixing a character
+                str = swapString(str, start, j);
+                //Recursively calling function generatePermutation() for rest of the characters
+                generatePermutation(res, str, start + 1, end, words);
+                //Backtracking and swapping the characters again.
+                str = swapString(str, start, j);
+            }
         }
         return res;
     }
