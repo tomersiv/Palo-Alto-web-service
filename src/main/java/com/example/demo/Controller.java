@@ -82,6 +82,20 @@ public class Controller {
         return res;
     }
 
+    public boolean checkSimilarity (String word1, String word2){
+        int[] count = new int[26];
+        int i;
+        for (i = 0; i < word1.length(); i++) {
+            count[word1.charAt(i) - 'a']++;
+            count[word2.charAt(i) - 'a']--;
+        }
+        for (i = 0; i < 26; i++)
+            if (count[i] != 0) {
+                return false;
+            }
+        return true;
+    }
+
     public String swapString(String a, int i, int j) {
         char[] b =a.toCharArray();
         char ch;
@@ -140,20 +154,6 @@ public class Controller {
                 e.printStackTrace();
             }
             return null;
-        }
-
-        public boolean checkSimilarity (String word1, String word2){
-            int[] count = new int[26];
-            int i;
-            for (i = 0; i < word1.length(); i++) {
-                count[word1.charAt(i) - 'a']++;
-                count[word2.charAt(i) - 'a']--;
-            }
-            for (i = 0; i < 26; i++)
-                if (count[i] != 0) {
-                    return false;
-                }
-            return true;
         }
 
     }
