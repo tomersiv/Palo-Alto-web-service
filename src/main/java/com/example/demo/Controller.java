@@ -44,15 +44,14 @@ public class Controller {
             totalRequestsTime.addAndGet((int) duration.get());
             //System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
             //Thread.sleep(1000L);
-            return CompletableFuture.completedFuture((new SimilarWords(new ArrayList<>())));
+            return CompletableFuture.completedFuture((new SimilarWords(new HashSet<>())));
         }
 
         // check each word in the file to see if it is a permutation of word
-        List<String> simWords = filterSimilarWords(wordsInFile, word);
+        Set<String> simWords = filterSimilarWords(wordsInFile, word);
 
 //        Set<String> similarSet = generatePermutation(new HashSet<>(), word, 0, word.length(), wordsInFile);
 //        similarSet.remove(word);
-//        List<String> simWords = similarSet.stream().collect(Collectors.toList());
 
         SimilarWords similar = new SimilarWords(simWords);
         totalRequests.incrementAndGet();
@@ -64,8 +63,8 @@ public class Controller {
         return CompletableFuture.completedFuture(similar);
     }
 
-    public List<String> filterSimilarWords(List<String> words, String word) {
-        List<String> res = new ArrayList<>();
+    public Set<String> filterSimilarWords(List<String> words, String word) {
+        Set<String> res = new HashSet<>();
         Set<Character> s = new HashSet<>();
         char maxChar = word.charAt(0);
         for (int i = 0; i < word.length(); i++) {
