@@ -64,4 +64,3 @@ This function returns a json object consisting of three integers: totalWords, to
 
 - **Calculating totalRequests:** Manages a counter that is incremented every time a HTTP Get request to /api/v1/similar is performed.
 - **Calculating avgProcessingTimeNs:** The duration time of all GET requests to /api/v1/similar are first accumulated and then divided by the total amount of GET requests. The duration time of each GET request to /api/v1/similar is calculated by managing two variables that capture the time, in the beginning and in the end of the 'similarWords' function; the difference between these variables is the duration time. 
- 
