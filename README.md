@@ -6,7 +6,7 @@
 4. Click **New** to create a new environment variable.
 5. On the **Variable name** type **"JAVA_HOME"**, and on the **Variable value** browse to the installation folder of your java jdk. Click **OK**.   
 6. Navigate to the folder where you cloned the repository, then open a PowerShell window inside 'Palo-Alto-web-service' folder (click shift + right mouse inside the folder then "Open PowerShell window here")
-7. In the PowerShell, run **./mvnw spring-boot:run**
+7. In the PowerShell, run **./mvnw spring-boot:run** and wait for the download to complete.
 8. The web service is up and running!! You can now send GET requests through these routes:
    - http://localhost:8000/api/v1/similar
    - http://localhost:8000/api/v1/stats  
@@ -36,11 +36,12 @@ This algorithm iterates over all permutations of the input string and, for each 
   
 The algorithm for creating all permutations of a given string 'str' uses the backtracking approach:  
 - The 'generatePermutation' function considers the first index of the given string.
-- If the index is end - 1, i.e. the end of the string, then the current permutation is completed.
-- Run a loop from current index 'start' till end – 1 and do the following:
-  - Swap str[j] and str[start].
-  - Construct all other possible permutations, from generatePermutation(start + 1).
-  - Backtrack again, i.e. swap(str[j], str[start]).  
+- **Stopping condition:** If the index is end - 1, i.e. the end of the string, then the current permutation is completed and we can search it in the dictionary using binary search.
+- else: 
+  - for j = start to end - 1:
+    - Swap str[j] and str[start].
+    - Construct all other possible permutations, from generatePermutation(start + 1).
+    - Backtrack again, i.e. swap(str[j], str[start]).  
     
   **An illustration of the algorithm on string 'ABC':**  
  
@@ -51,7 +52,7 @@ The algorithm for creating all permutations of a given string 'str' uses the bac
  - **Space Complexity - O(K!), where K is the length of the input string. This is because the function will be called recursively and will be stored in the call stack for all K! permutations.**  
    
      
-**By default, the program uses the first algorithm. Upon checking both algorithms' performance, I noticed that the second algorithm performs better (about 10 times faster) when the input string's length is between 1 and 7; in any other case, the first algorithm is far more preferable. 
+**By default, the program uses the first algorithm. Upon checking both algorithms' performance, I noticed that the second algorithm performs better (about 10 times faster) when the input string's length is between 1 and 7; in any other case, the first algorithm is far more preferable.** 
   
 ### *To support the second algorithm (in case the input strings' length is between 1-7),  simply comment line 36 and uncomment lines 38, 39 in the Controller class.*
   
