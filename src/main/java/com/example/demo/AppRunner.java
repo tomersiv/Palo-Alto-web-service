@@ -32,10 +32,14 @@ public class AppRunner implements CommandLineRunner {
         CompletableFuture<String> task2 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/similar?word=mother", String.class));
         CompletableFuture<String> task3 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/similar?word=father", String.class));
         CompletableFuture<String> task4 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/similar?word", String.class));
-        CompletableFuture<String> task5 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/stats", String.class));
-
+        //CompletableFuture<String> task5 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/stats", String.class));
+        CompletableFuture<String> task6 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/similar?word=ap", String.class));
+        CompletableFuture<String> task7 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/similar?word=ther", String.class));
+        CompletableFuture<String> task8 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/similar?word=faer", String.class));
+        CompletableFuture<String> task9 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/similar?word=asd", String.class));
+        CompletableFuture<String> task10 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/stats", String.class));
         // Wait until they are all done
-        CompletableFuture.allOf(task1, task2, task3, task4, task5).join();
+        CompletableFuture.allOf(task10).join();
 
         // Print results, including elapsed time
         logger.info("Elapsed time: " + (System.currentTimeMillis() - start));
@@ -43,6 +47,10 @@ public class AppRunner implements CommandLineRunner {
         logger.info("--> " + task2.get());
         logger.info("--> " + task3.get());
         logger.info("--> " + task4.get());
-        logger.info("--> " + task5.get());
+        logger.info("--> " + task6.get());
+        logger.info("--> " + task7.get());
+        logger.info("--> " + task8.get());
+        logger.info("--> " + task9.get());
+        logger.info("--> " + task10.get());
     }
 }

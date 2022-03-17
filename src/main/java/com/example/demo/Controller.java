@@ -35,7 +35,7 @@ public class Controller {
     @Async
     public CompletableFuture<String> similarWords(@RequestParam(value = "word", defaultValue = "") String word) throws InterruptedException {
         logger.info("Finding similar words to " + word);
-        Thread.sleep(1000L);
+        //Thread.sleep(3000);
         AtomicLong startTime = new AtomicLong(System.nanoTime());
 
         if (word.isEmpty()) {
@@ -124,7 +124,7 @@ public class Controller {
         @Async
         public CompletableFuture<String> stats () throws InterruptedException {
             logger.info("Calculating stats...");
-            Thread.sleep(1000L);
+            Thread.sleep(1000);
             //System.out.println("totalRequestTime in stats: " + totalRequestsTime);
             AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (totalRequestsTime.get() / totalRequests.get()) : 0);
             Stats stats = new Stats(totalWords, totalRequests.get(), avgRequestTime.get());
