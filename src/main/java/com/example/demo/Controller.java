@@ -95,29 +95,30 @@ public class Controller {
         return true;
     }
 
-    public Set<String> generatePermutation(Set<String> res, String str, int start, int end, List<String> words) {
-        if (start == end - 1) {
-            int i = Collections.binarySearch(words, str);
-            if (i >= 0)
-                res.add(str);
-        }
-        else {
-            for (int j = start; j < end; j++) {
-                str = swap(str, start, j);
-                generatePermutation(res, str, start + 1, end, words);
-                str = swap(str, start, j);
-            }
-        }
-        return res;
-    }
+    // checks, for each permutation of 'str', if it is contained in the lexicographically ordered dictionary using binary search
+//    public Set<String> generatePermutation(Set<String> res, String str, int start, int end, List<String> words) {
+//        if (start == end - 1) {
+//            int i = Collections.binarySearch(words, str);
+//            if (i >= 0)
+//                res.add(str);
+//        }
+//        else {
+//            for (int j = start; j < end; j++) {
+//                str = swap(str, start, j);
+//                generatePermutation(res, str, start + 1, end, words);
+//                str = swap(str, start, j);
+//            }
+//        }
+//        return res;
+//    }
 
-    public String swap(String s, int i, int j) {
-        char[] ch = s.toCharArray();
-        char temp = ch[i];
-        ch[i] = ch[j];
-        ch[j] = temp;
-        return String.valueOf(ch);
-    }
+//    public String swap(String s, int i, int j) {
+//        char[] ch = s.toCharArray();
+//        char temp = ch[i];
+//        ch[i] = ch[j];
+//        ch[j] = temp;
+//        return String.valueOf(ch);
+//    }
 
         @GetMapping("api/v1/stats")
         @Async
