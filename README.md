@@ -54,7 +54,7 @@ The algorithm for creating all permutations of a given string 'str' uses the bac
      
 **By default, the program uses the first algorithm. Upon checking both algorithms' performance, I noticed that the second algorithm performs better (about 10 times faster) when the input string's length is between 1 and 7; in any other case, the first algorithm is far more preferable.** 
   
-### *To support the second algorithm (in case the input strings' length is between 1-7),  simply comment line 36 and uncomment lines 38, 39 in the Controller class.*
+### *To support the second algorithm (in case the input strings' length is between 1-7),  simply comment line 36 and uncomment lines 38, 39, the 'generatePermutation' function and the 'swap' function in the Controller class.*
   
   
   
@@ -64,4 +64,3 @@ This function returns a json object consisting of three integers: totalWords, to
 
 - **Calculating totalRequests:** Manages a counter that is incremented every time a HTTP Get request to /api/v1/similar is performed.
 - **Calculating avgProcessingTimeNs:** The duration time of all GET requests to /api/v1/similar are first accumulated and then divided by the total amount of GET requests. The duration time of each GET request to /api/v1/similar is calculated by managing two variables that capture the time, in the beginning and in the end of the 'similarWords' function; the difference between these variables is the duration time. 
- 
