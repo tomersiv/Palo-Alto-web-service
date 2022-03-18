@@ -48,10 +48,10 @@ public class Controller {
         }
 
         // check each word in the file to see if it is a permutation of word
-        Set<String> simWords = filterSimilarWords(wordsInFile, word);
+//        Set<String> simWords = filterSimilarWords(wordsInFile, word);
 
-//        Set<String> simWords = generatePermutation(new HashSet<>(), word, 0, word.length(), wordsInFile);
-//        simWords.remove(word);
+        Set<String> simWords = generatePermutation(new HashSet<>(), word, 0, word.length(), wordsInFile, new HashSet<>());
+        simWords.remove(word);
 
         SimilarWords similar = new SimilarWords(simWords);
         totalRequests.incrementAndGet();
@@ -96,29 +96,30 @@ public class Controller {
     }
 
     // checks, for each permutation of 'str', if it is contained in the lexicographically ordered dictionary using binary search
-//    public Set<String> generatePermutation(Set<String> res, String str, int start, int end, List<String> words) {
-//        if (start == end - 1) {
-//            int i = Collections.binarySearch(words, str);
-//            if (i >= 0)
-//                res.add(str);
-//        }
-//        else {
-//            for (int j = start; j < end; j++) {
-//                str = swap(str, start, j);
-//                generatePermutation(res, str, start + 1, end, words);
-//                str = swap(str, start, j);
-//            }
-//        }
-//        return res;
-//    }
+    public Set<String> generatePermutation(Set<String> res, String str, int start, int end, List<String> words, Set<String> wordsSearched) {
+        if (start == end - 1 && !wordsSearched.contains(str)) {
+            wordsSearched.add(str);
+            int i = Collections.binarySearch(words, str);
+            if (i >= 0)
+                res.add(str);
+        }
+        else {
+            for (int j = start; j < end; j++) {
+                str = swap(str, start, j);
+                generatePermutation(res, str, start + 1, end, words, wordsSearched);
+                str = swap(str, start, j);
+            }
+        }
+        return res;
+    }
 
-//    public String swap(String s, int i, int j) {
-//        char[] ch = s.toCharArray();
-//        char temp = ch[i];
-//        ch[i] = ch[j];
-//        ch[j] = temp;
-//        return String.valueOf(ch);
-//    }
+    public String swap(String s, int i, int j) {
+        char[] ch = s.toCharArray();
+        char temp = ch[i];
+        ch[i] = ch[j];
+        ch[j] = temp;
+        return String.valueOf(ch);
+    }
 
         @GetMapping("api/v1/stats")
         @Async
