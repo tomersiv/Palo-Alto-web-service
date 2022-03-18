@@ -34,7 +34,7 @@ A constant-spaced count array of size 26 (number of lowercase English letters) i
 This algorithm iterates over all permutations of the input string and, for each permutation, checks if the dictionary contains it, using binary search. **Note that a binary search on the dictionary file can be used, because the strings in that file are sorted lexicographically. Also Note that if the current permutation has already been searched in the diciotnary, it doesn't need to be searched again. In order to support this optimization, a hashset 'wordsSearched' is maintained to track all permutations of a given word that have already been searched in the dictionary.**  
   
   
-The algorithm for creating all permutations of a given string 'str' uses the backtracking approach:  
+The algorithm for generating all permutations of a given string 'str' uses the backtracking approach:  
 - The 'generatePermutation' function considers the first index of the given string.
 - **Stopping condition:** If the index is end - 1, i.e. the end of the string, then the current permutation is completed.
 - else: 
