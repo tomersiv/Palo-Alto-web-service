@@ -27,34 +27,32 @@ A constant-spaced count array of size 26 (number of lowercase English letters) i
 - Word similarity is checked only if the length of both strings is equal and the input string's chars contains the first char of a word in the list (in O(1), using HashSet).
 - The input string's char with the maximal value is calculated and if a word in the list starts with a char that has a greater value than this maximum, then the iteration is stopped. This approach is based on the fact that the words in the dictionary file are sorted lexicographically.
       
-- **Time Complexity - O(N⋅K), where K is the length of the input string and N is the number of words in the dictionary file.**  
-- **Space Complexity - O(1)**  
+****Time Complexity - O(N⋅K), where K is the length of the input string and N is the number of words in the dictionary file.***   
+****Space Complexity - O(1)***
 
 **Algorithm 2:**  
-This algorithm iterates over all permutations of the input string and, for each permutation, checks if the dictionary contains it, using binary search. **Note that a binary search on the dictionary file can be used, because the strings in that file are sorted lexicographically.**  
+This algorithm iterates over all permutations of the input string and, for each permutation, checks if the dictionary contains it, using binary search. **Note that a binary search on the dictionary file can be used, because the strings in that file are sorted lexicographically. Also Note that if the current permutation has already been searched in the diciotnary, it doesn't need to be searched again. In order to support this optimization, a hashset 'wordsSearched' is maintained to track all permutations of a given word that have already been searched in the dictionary.**  
   
   
-The algorithm for creating all permutations of a given string 'str' uses the backtracking approach:  
+The algorithm for generating all permutations of a given string 'str' uses the backtracking approach:  
 - The 'generatePermutation' function considers the first index of the given string.
-- **Stopping condition:** If the index is end - 1, i.e. the end of the string, then the current permutation is completed and we can search it in the dictionary using binary search.
+- **Stopping condition:** If the index is end - 1, i.e. the end of the string, then the current permutation is completed.
 - else: 
   - for j = start to end - 1:
     - Swap str[j] and str[start].
     - Construct all other possible permutations, from generatePermutation(start + 1).
     - Backtrack again, i.e. swap(str[j], str[start]).  
+  
+****Time Complexity - O(K!⋅K⋅logN), where K is the length of the input string and N is the number of words in the dictionary file.***  
+****Space Complexity - O(K!), where K is the length of the input string. This is because the function will be called recursively and will be stored in the call stack for all K! permutations.***
     
-  **An illustration of the algorithm on string 'ABC':**  
+  **An illustration of getting all permutations of the string 'ABC' according to the algorithm:**  
  
- ![This is an image](https://static.javatpoint.com/programs/images/program-to-find-all-the-permutations-of-a-string.png)  
-   
-   
- - **Time Complexity - O(K!⋅K⋅logN), where K is the length of the input string and N is the number of words in the dictionary file.**  
- - **Space Complexity - O(K!), where K is the length of the input string. This is because the function will be called recursively and will be stored in the call stack for all K! permutations.**  
+ ![This is an image](https://static.javatpoint.com/programs/images/program-to-find-all-the-permutations-of-a-string.png)   
    
      
-**By default, the program uses the first algorithm. Upon checking both algorithms' performance, I noticed that the second algorithm performs better (about 10 times faster) when the input string's length is between 1 and 7; in any other case, the first algorithm is far more preferable.** 
-  
-### *To support the second algorithm (in case the input strings' length is between 1-7),  simply comment line 36 and uncomment lines 38, 39, the 'generatePermutation' function and the 'swap' function in the Controller class.*
+### *By default, the program uses the first algorithm. Upon checking both algorithms' performance, I noticed that the second algorithm performs better (about 10 times faster) when the input string's length is between 1 and 7; in any other case, the first algorithm is far more preferable.*    
+### * *To support the second algorithm (in case the input strings' length is between 1-7),  simply comment line 36 and uncomment lines 38, 39, the 'generatePermutation' function and the 'swap' function in the Controller class.*
   
   
   
