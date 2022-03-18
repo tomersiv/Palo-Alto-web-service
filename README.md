@@ -31,7 +31,7 @@ A constant-spaced count array of size 26 (number of lowercase English letters) i
 ****Space Complexity - O(1)***
 
 **Algorithm 2:**  
-This algorithm iterates over all permutations of the input string and, for each permutation, checks if the dictionary contains it, using binary search. **Note that a binary search on the dictionary file can be used, because the strings in that file are sorted lexicographically. Also Note that if the current permutation has already been searched in the diciotnary, it doesn't need to be searched again. In order to support this optimization, a hashset 'wordsSearched' is maintained to track all permutations of a given word that have already been searched in the dictionary.**  
+This algorithm iterates over all permutations of the input string and, for each permutation, checks if the dictionary contains it, using binary search. **Note that a binary search on the dictionary file can be used, because the strings in that file are sorted lexicographically. Also Note that if the current permutation has already been searched in the diciotnary, it doesn't need to be searched again. In order to support this optimization, a HashSet 'wordsSearched' is maintained to track all permutations of a given word that have already been searched in the dictionary.**  
   
   
 The algorithm for generating all permutations of a given string 'str' uses the backtracking approach:  
