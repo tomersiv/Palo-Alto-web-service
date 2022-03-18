@@ -35,7 +35,7 @@ public class Controller {
         // check each word in the file to see if it is a permutation of 'word'
         Set<String> simWords = filterSimilarWords(wordsInFile, word);
 
-//         Set<String> simWords = generatePermutation(new HashSet<>(), word, 0, word.length(), wordsInFile);
+//         Set<String> simWords = generatePermutation(new HashSet<>(), word, 0, word.length(), wordsInFile, new HashSet<>());
 //         simWords.remove(word);
 
         SimilarWords similar = new SimilarWords(simWords);
@@ -79,8 +79,9 @@ public class Controller {
     }
 
     // checks, for each permutation of 'str', if it is contained in the lexicographically ordered dictionary using binary search
-//    public Set<String> generatePermutation(Set<String> res, String str, int start, int end, List<String> words) {
-//        if (start == end - 1) {
+//    public Set<String> generatePermutation(Set<String> res, String str, int start, int end, List<String> words, Set<String> wordsSearched) {
+//        if (start == end - 1 && !wordsSearched.contains(str)) {
+//            wordsSearched.add(str);
 //            int i = Collections.binarySearch(words, str);
 //            if (i >= 0)
 //                res.add(str);
@@ -88,13 +89,13 @@ public class Controller {
 //        else {
 //            for (int j = start; j < end; j++) {
 //                str = swap(str, start, j);
-//                generatePermutation(res, str, start + 1, end, words);
+//                generatePermutation(res, str, start + 1, end, words, wordsSearched);
 //                str = swap(str, start, j);
 //            }
 //        }
 //        return res;
 //    }
-
+//
 //    public String swap(String s, int i, int j) {
 //        char[] ch = s.toCharArray();
 //        char temp = ch[i];
