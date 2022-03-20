@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 public class Controller {
     private static final int totalWords = 351075;
     private AtomicInteger totalRequests = new AtomicInteger(0);
-    private AtomicInteger totalRequestsTime = new AtomicInteger(0);
+    private AtomicLong totalRequestsTime = new AtomicLong(0);
     private List<String> wordsInFile = readFromFile("words_clean.txt");
 
     @GetMapping("api/v1/similar")
@@ -28,7 +28,7 @@ public class Controller {
 
         if (word.isEmpty()) {
             totalRequests.incrementAndGet();
-            totalRequestsTime.addAndGet((int) (System.nanoTime() - startTime.get()));
+            totalRequestsTime.addAndGet(System.nanoTime() - startTime.get());
             return objectToJson(new SimilarWords(new HashSet<>()));
         }
 
@@ -40,7 +40,7 @@ public class Controller {
 
         SimilarWords similar = new SimilarWords(simWords);
         totalRequests.incrementAndGet();
-        totalRequestsTime.addAndGet((int) (System.nanoTime() - startTime.get()));
+        totalRequestsTime.addAndGet(System.nanoTime() - startTime.get());
         return objectToJson(similar);
     }
 
@@ -106,7 +106,7 @@ public class Controller {
 
     @GetMapping("api/v1/stats")
     public String stats() {
-        AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (totalRequestsTime.get() / totalRequests.get()) : 0);
+        AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (int)(totalRequestsTime.get() / totalRequests.get()) : 0);
         Stats stats = new Stats(totalWords, totalRequests.get(), avgRequestTime.get());
         return objectToJson(stats);
     }
