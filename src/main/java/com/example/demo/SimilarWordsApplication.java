@@ -18,8 +18,8 @@ public class SimilarWordsApplication {
 	@Bean
 	public Executor taskExecutor() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(15);
-		executor.setMaxPoolSize(15);
+		executor.setCorePoolSize(105);
+		executor.setMaxPoolSize(105);
 		executor.setQueueCapacity(500);
 		executor.setThreadNamePrefix("SimilarWordsThread-");
 		executor.initialize();

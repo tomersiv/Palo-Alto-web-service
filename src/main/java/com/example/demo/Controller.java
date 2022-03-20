@@ -27,13 +27,13 @@ import java.util.stream.Stream;
 public class Controller {
     private static final int totalWords = 351075;
     private AtomicInteger totalRequests = new AtomicInteger(0);
-    private AtomicInteger totalRequestsTime = new AtomicInteger(0);
+    private AtomicLong totalRequestsTime = new AtomicLong(0);
     private List<String> wordsInFile = readFromFile("words_clean.txt");
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
     @GetMapping("api/v1/similar")
-    @Async
-    public CompletableFuture<String> similarWords(@RequestParam(value = "word", defaultValue = "") String word) throws InterruptedException {
+    //@Async
+    public String similarWords(@RequestParam(value = "word", defaultValue = "") String word) throws InterruptedException {
         logger.info("Finding similar words to " + word);
         //Thread.sleep(3000);
         AtomicLong startTime = new AtomicLong(System.nanoTime());
@@ -42,9 +42,9 @@ public class Controller {
             totalRequests.incrementAndGet();
             AtomicLong duration = new AtomicLong(System.nanoTime() - startTime.get());
             System.out.println("request handle time: " + (duration));
-            totalRequestsTime.addAndGet((int) duration.get());
+            totalRequestsTime.addAndGet(duration.get());
             //System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
-            return CompletableFuture.completedFuture(objectToJson(new SimilarWords(new HashSet<>())));
+            return objectToJson(new SimilarWords(new HashSet<>()));
         }
 
         // check each word in the file to see if it is a permutation of word
@@ -57,9 +57,9 @@ public class Controller {
         totalRequests.incrementAndGet();
         AtomicLong duration = new AtomicLong(System.nanoTime() - startTime.get());
         System.out.println("request handle time: " + (duration));
-        totalRequestsTime.addAndGet((int) duration.get());
+        totalRequestsTime.addAndGet(duration.get());
         //System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
-        return CompletableFuture.completedFuture(objectToJson(similar));
+        return objectToJson(similar);   
     }
 
     public Set<String> filterSimilarWords(List<String> words, String word) {
@@ -122,16 +122,16 @@ public class Controller {
 //    }
 
         @GetMapping("api/v1/stats")
-        @Async
-        public CompletableFuture<String> stats () throws InterruptedException {
+        //@Async
+        public String stats () throws InterruptedException {
             logger.info("Calculating stats...");
             Thread.sleep(1000);
             //System.out.println("totalRequestTime in stats: " + totalRequestsTime);
-            AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (totalRequestsTime.get() / totalRequests.get()) : 0);
+            AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (int)(totalRequestsTime.get() / totalRequests.get()) : 0);
             Stats stats = new Stats(totalWords, totalRequests.get(), avgRequestTime.get());
             //Thread.sleep(1000L);
             //System.out.println(totalRequestsTime);
-            return CompletableFuture.completedFuture(objectToJson(stats));
+            return objectToJson(stats);
         }
 
         public List<String> readFromFile (String pathName){
