@@ -21,6 +21,7 @@ public class Controller {
     private AtomicInteger totalRequests = new AtomicInteger(0);
     private AtomicLong totalRequestsTime = new AtomicLong(0);
     private List<String> wordsInFile = readFromFile("words_clean.txt");
+    private Map<Integer, List<String>> wordsByLength = calculateLengthMap(wordsInFile);
 
     @GetMapping("api/v1/similar")
     public String similarWords(@RequestParam(value = "word", defaultValue = "") String word) {
@@ -32,8 +33,12 @@ public class Controller {
             return objectToJson(new SimilarWords(new HashSet<>()));
         }
 
+        int length = word.length();
+        if (!wordsByLength.containsKey(length))
+            return objectToJson(new SimilarWords(new HashSet<>()));
+
         // check each word in the file to see if it is a permutation of 'word'
-        Set<String> simWords = filterSimilarWords(wordsInFile, word);
+        Set<String> simWords = filterSimilarWords(wordsByLength.get(length), word);
 
 //         Set<String> simWords = generatePermutation(new HashSet<>(), word, 0, word.length(), wordsInFile, new HashSet<>());
 //         simWords.remove(word);
@@ -56,7 +61,7 @@ public class Controller {
         for (String w : words) {
             if (maxChar < w.charAt(0)) // this line is an optimization to reduce the amount of iterations
                 break;
-            if (word.length() == w.length() && s.contains(w.charAt(0))  // this line is also an optimization
+            if (s.contains(w.charAt(0))  // this line is also an optimization
                     && !word.equals(w) && checkSimilarity(word, w))
                 res.add(w);
         }
@@ -119,6 +124,20 @@ public class Controller {
             e.printStackTrace();
         }
         return lst;
+    }
+
+    public Map<Integer, List<String>> calculateLengthMap(List<String> wordsInFile) {
+        Map<Integer, List<String>> map = new HashMap<>();
+        for (String w : wordsInFile) {
+            int length = w.length();
+            if (!map.containsKey(length)) {
+                map.put(length, new ArrayList<>());
+            } else {
+                map.get(length).add(w);
+                map.put(length, map.get(length));
+            }
+        }
+        return map;
     }
 
     public String objectToJson(Object o) {
