@@ -41,7 +41,7 @@ public class Controller {
         Set<String> simWords = filterSimilarWords(wordsByLength.get(length), word);
 
 //         Set<String> simWords = generatePermutation(new HashSet<>(), word, 0, word.length(), wordsInFile, new HashSet<>());
-//         simWords.remove(word);
+         simWords.remove(word);
 
         SimilarWords similar = new SimilarWords(simWords);
         totalRequests.incrementAndGet();
@@ -62,7 +62,7 @@ public class Controller {
             if (maxChar < w.charAt(0)) // this line is an optimization to reduce the amount of iterations
                 break;
             if (s.contains(w.charAt(0))  // this line is also an optimization
-                    && !word.equals(w) && checkSimilarity(word, w))
+                    && checkSimilarity(word, w))
                 res.add(w);
         }
         return res;
