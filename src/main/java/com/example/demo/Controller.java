@@ -75,7 +75,7 @@ public class Controller {
         for (String w : words) {
             if (maxChar < w.charAt(0)) // this line is an optimization to reduce the amount of iterations
                 break;
-            if (word.length() == w.length() && s.contains(w.charAt(0))  // this line is also an optimization
+            if (s.contains(w.charAt(0))  // this line is also an optimization
                     && !word.equals(w) && checkSimilarity(word, w))
                 res.add(w);
         }
