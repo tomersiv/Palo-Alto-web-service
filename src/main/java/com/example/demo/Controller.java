@@ -37,6 +37,10 @@ public class Controller {
         logger.info("Finding similar words to " + word);
         AtomicLong startTime = new AtomicLong(System.nanoTime());
 
+        /*
+         if 'word' is empty or there are no words with the same length as 'word' in the dictionary,
+         there are no similar words to 'word'.
+        */
         if (word.isEmpty() || !lengthSet.contains(word.length())) {
             totalRequests.incrementAndGet();
             AtomicLong duration = new AtomicLong(System.nanoTime() - startTime.get());
@@ -47,7 +51,12 @@ public class Controller {
 
         List<String> words = new ArrayList<>();
         Set<Character> wordLetters = new HashSet<>();
+        Set<String> simWords = new HashSet<>();
 
+        /*
+         creates a list of potential similar words to 'word' from the dictionary, for example:
+         'word' = "apple" --> 'potential_list' = [list, of, all, words, that, start, with, either, 'a', 'p', 'l' or 'e', and, have, the, same, length, as, "apple"]
+        */
         for (int i = 0; i < word.length(); i++) {
             char ch = word.charAt(i);
             if(!wordLetters.contains(ch)) {
@@ -58,9 +67,11 @@ public class Controller {
             }
         }
 
-        // check each word in the file to see if it is a permutation of word
-        Set<String> simWords = filterSimilarWords(words, word);
-        simWords.remove(word);
+        // simWords will contain all similar words to 'word'
+        if(!words.isEmpty()) {
+            simWords = filterSimilarWords(words, word);
+            simWords.remove(word);
+        }
 
         SimilarWords similar = new SimilarWords(simWords);
         totalRequests.incrementAndGet();
@@ -72,14 +83,7 @@ public class Controller {
 
     public Set<String> filterSimilarWords(List<String> words, String word) {
         Set<String> res = new HashSet<>();
-        char maxChar = word.charAt(0);
-        for (int i = 0; i < word.length(); i++) {
-            if (word.charAt(i) - 'a' > maxChar - 'a')
-                maxChar = word.charAt(i);
-        }
         for (String w : words) {
-            if (maxChar < w.charAt(0)) // this line is an optimization to reduce the amount of iterations
-                break;
             if (checkSimilarity(word, w))
                 res.add(w);
         }
@@ -120,6 +124,11 @@ public class Controller {
         return lst;
     }
 
+    /*
+     creates a HashMap that maps a string to a list of words from the dictionary, for Example:
+     "4a" -> [list, of, words, in, length, 4, that, start, with 'a'].
+     also creates a HashSet of all words' lengths in the dictionary.
+     */
     public Map<String, List<String>> calculateMapAndSet(List<String> wordsInFile) {
         Map<String, List<String>> map = new HashMap<>();
         for (String w : wordsInFile) {
