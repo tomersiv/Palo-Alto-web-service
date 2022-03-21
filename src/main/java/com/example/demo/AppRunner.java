@@ -26,10 +26,14 @@ public class AppRunner implements CommandLineRunner {
 
         // Kick of multiple, asynchronous tasks
 //        CompletableFuture<String> task1 = controller.similarWords("app");
+//        logger.info(task1.get());
 //        CompletableFuture<String> task2 = controller.similarWords("apple");
 //        CompletableFuture<String> task3 = controller.similarWords("asdas");
 //        CompletableFuture<String> task4 = controller.similarWords("aasdasd");
-//        CompletableFuture<String> task5 = controller.stats();
+//        CompletableFuture<String> task5 = controller.similarWords("aasdasdasdae");
+//        CompletableFuture<String> task6 = controller.similarWords("aasdasdasdasdqwe");
+//        CompletableFuture<String> task7 = controller.stats();
+//        logger.info(task7.get());
 
         for(int i = 0; i < 99; i++){
             String str = generateString();
@@ -50,7 +54,7 @@ public class AppRunner implements CommandLineRunner {
     public String generateString() {
         int leftLimit = 97; // letter 'a'
         int rightLimit = 122; // letter 'z'
-        int targetStringLength = new Random().nextInt(11);
+        int targetStringLength = new Random().nextInt(30);
         Random random = new Random();
         StringBuilder buffer = new StringBuilder(targetStringLength);
         for (int i = 0; i < targetStringLength; i++) {

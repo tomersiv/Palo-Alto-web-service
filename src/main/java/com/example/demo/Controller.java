@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,7 +17,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,13 +27,13 @@ public class Controller {
     private AtomicInteger totalRequests = new AtomicInteger(0);
     private AtomicLong totalRequestsTime = new AtomicLong(0);
     private List<String> wordsInFile = readFromFile("words_clean.txt");
+    private Map<Integer, List<String>> wordsByLength = calculateMap(wordsInFile);
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
     @GetMapping("api/v1/similar")
     @Async
-    public CompletableFuture<String> similarWords(@RequestParam(value = "word", defaultValue = "") String word) throws InterruptedException {
+    public CompletableFuture<String> similarWords(@RequestParam(value = "word", defaultValue = "") String word) {
         logger.info("Finding similar words to " + word);
-        //Thread.sleep(3000);
         AtomicLong startTime = new AtomicLong(System.nanoTime());
 
         if (word.isEmpty()) {
@@ -46,9 +44,12 @@ public class Controller {
             //System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
             return CompletableFuture.completedFuture(objectToJson(new SimilarWords(new HashSet<>())));
         }
+        int length = word.length();
+        if (!wordsByLength.containsKey(length))
+            return CompletableFuture.completedFuture(objectToJson(new SimilarWords(new HashSet<>())));
 
         // check each word in the file to see if it is a permutation of word
-        Set<String> simWords = filterSimilarWords(wordsInFile, word);
+        Set<String> simWords = filterSimilarWords(wordsByLength.get(word.length()), word);
 
 //        Set<String> simWords = generatePermutation(new HashSet<>(), word, 0, word.length(), wordsInFile, new HashSet<>());
 //        simWords.remove(word);
@@ -81,7 +82,7 @@ public class Controller {
         return res;
     }
 
-    public boolean checkSimilarity (String word1, String word2){
+    public boolean checkSimilarity(String word1, String word2) {
         int[] count = new int[26];
         int i;
         for (i = 0; i < word1.length(); i++) {
@@ -121,37 +122,51 @@ public class Controller {
 //        return String.valueOf(ch);
 //    }
 
-        @GetMapping("api/v1/stats")
-        @Async
-        public CompletableFuture<String> stats () throws InterruptedException {
-            logger.info("Calculating stats...");
-            Thread.sleep(1000);
-            //System.out.println("totalRequestTime in stats: " + totalRequestsTime);
-            AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (int)(totalRequestsTime.get() / totalRequests.get()) : 0);
-            Stats stats = new Stats(totalWords, totalRequests.get(), avgRequestTime.get());
-            //Thread.sleep(1000L);
-            //System.out.println(totalRequestsTime);
-            return CompletableFuture.completedFuture(objectToJson(stats));
-        }
-
-        public List<String> readFromFile (String pathName){
-            List<String> lst = new ArrayList<>();
-            try (Stream<String> lines = Files.lines(Paths.get(pathName))) {
-                lst = lines.collect(Collectors.toList());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return lst;
-        }
-
-        public String objectToJson (Object o){
-            ObjectMapper Obj = new ObjectMapper();
-            try {
-                return Obj.writeValueAsString(o);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
+    @GetMapping("api/v1/stats")
+    @Async
+    public CompletableFuture<String> stats() throws InterruptedException {
+        logger.info("Calculating stats...");
+        Thread.sleep(1000);
+        //System.out.println("totalRequestTime in stats: " + totalRequestsTime);
+        AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (int) (totalRequestsTime.get() / totalRequests.get()) : 0);
+        Stats stats = new Stats(totalWords, totalRequests.get(), avgRequestTime.get());
+        //Thread.sleep(1000L);
+        //System.out.println(totalRequestsTime);
+        return CompletableFuture.completedFuture(objectToJson(stats));
     }
+
+    public List<String> readFromFile(String pathName) {
+        List<String> lst = new ArrayList<>();
+        try (Stream<String> lines = Files.lines(Paths.get(pathName))) {
+            lst = lines.collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return lst;
+    }
+
+    public Map<Integer, List<String>> calculateMap(List<String> wordsInFile) {
+        Map<Integer, List<String>> map = new HashMap<>();
+        for (String w : wordsInFile) {
+            int length = w.length();
+            if (!map.containsKey(length)) {
+                map.put(length, new ArrayList<>());
+            } else {
+                map.get(length).add(w);
+                map.put(length, map.get(length));
+            }
+        }
+        return map;
+    }
+
+    public String objectToJson(Object o) {
+        ObjectMapper Obj = new ObjectMapper();
+        try {
+            return Obj.writeValueAsString(o);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+}
