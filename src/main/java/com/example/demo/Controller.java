@@ -27,7 +27,8 @@ public class Controller {
     private AtomicInteger totalRequests = new AtomicInteger(0);
     private AtomicLong totalRequestsTime = new AtomicLong(0);
     private List<String> wordsInFile = readFromFile("words_clean.txt");
-    private Map<Integer, List<String>> wordsByLength = calculateMap(wordsInFile);
+    private Set<Integer> lengthSet = new HashSet<>();
+    private Map<String, List<String>> wordsMap = calculateMapAndSet(wordsInFile);
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
     @GetMapping("api/v1/similar")
@@ -36,22 +37,29 @@ public class Controller {
         logger.info("Finding similar words to " + word);
         AtomicLong startTime = new AtomicLong(System.nanoTime());
 
-        if (word.isEmpty()) {
+        if (word.isEmpty() || !lengthSet.contains(word.length())) {
             totalRequests.incrementAndGet();
             AtomicLong duration = new AtomicLong(System.nanoTime() - startTime.get());
             System.out.println("request handle time: " + (duration));
             totalRequestsTime.addAndGet(duration.get());
-            //System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
             return CompletableFuture.completedFuture(objectToJson(new SimilarWords(new HashSet<>())));
         }
-        int length = word.length();
-        if (!wordsByLength.containsKey(length))
-            return CompletableFuture.completedFuture(objectToJson(new SimilarWords(new HashSet<>())));
+
+        List<String> words = new ArrayList<>();
+        Set<Character> wordLetters = new HashSet<>();
+
+        for (int i = 0; i < word.length(); i++) {
+            char ch = word.charAt(i);
+            if(!wordLetters.contains(ch)) {
+                wordLetters.add(ch);
+                List<String> wordList = wordsMap.get(String.valueOf(word.length()) + ch);
+                if(wordList != null)
+                    words.addAll(wordList);
+            }
+        }
 
         // check each word in the file to see if it is a permutation of word
-        Set<String> simWords = filterSimilarWords(wordsByLength.get(length), word);
-
-//        Set<String> simWords = generatePermutation(new HashSet<>(), word, 0, word.length(), wordsInFile, new HashSet<>());
+        Set<String> simWords = filterSimilarWords(words, word);
         simWords.remove(word);
 
         SimilarWords similar = new SimilarWords(simWords);
@@ -59,24 +67,20 @@ public class Controller {
         AtomicLong duration = new AtomicLong(System.nanoTime() - startTime.get());
         System.out.println("request handle time: " + (duration));
         totalRequestsTime.addAndGet(duration.get());
-        //System.out.println("totalRequestTime in similarWords: " +totalRequestsTime);
         return CompletableFuture.completedFuture(objectToJson(similar));
     }
 
     public Set<String> filterSimilarWords(List<String> words, String word) {
         Set<String> res = new HashSet<>();
-        Set<Character> s = new HashSet<>();
         char maxChar = word.charAt(0);
         for (int i = 0; i < word.length(); i++) {
-            s.add(word.charAt(i));
             if (word.charAt(i) - 'a' > maxChar - 'a')
                 maxChar = word.charAt(i);
         }
         for (String w : words) {
             if (maxChar < w.charAt(0)) // this line is an optimization to reduce the amount of iterations
                 break;
-            if (s.contains(w.charAt(0))  // this line is also an optimization
-                     && checkSimilarity(word, w))
+            if (checkSimilarity(word, w))
                 res.add(w);
         }
         return res;
@@ -96,42 +100,13 @@ public class Controller {
         return true;
     }
 
-    // checks, for each permutation of 'str', if it is contained in the lexicographically ordered dictionary using binary search
-//    public Set<String> generatePermutation(Set<String> res, String str, int start, int end, List<String> words, Set<String> wordsSearched) {
-//        if (start == end - 1 && !wordsSearched.contains(str)) {
-//            wordsSearched.add(str);
-//            int i = Collections.binarySearch(words, str);
-//            if (i >= 0)
-//                res.add(str);
-//        }
-//        else {
-//            for (int j = start; j < end; j++) {
-//                str = swap(str, start, j);
-//                generatePermutation(res, str, start + 1, end, words, wordsSearched);
-//                str = swap(str, start, j);
-//            }
-//        }
-//        return res;
-//    }
-//
-//    public String swap(String s, int i, int j) {
-//        char[] ch = s.toCharArray();
-//        char temp = ch[i];
-//        ch[i] = ch[j];
-//        ch[j] = temp;
-//        return String.valueOf(ch);
-//    }
-
     @GetMapping("api/v1/stats")
     @Async
     public CompletableFuture<String> stats() throws InterruptedException {
         logger.info("Calculating stats...");
         Thread.sleep(2000);
-        //System.out.println("totalRequestTime in stats: " + totalRequestsTime);
         AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (int) (totalRequestsTime.get() / totalRequests.get()) : 0);
         Stats stats = new Stats(totalWords, totalRequests.get(), avgRequestTime.get());
-        //Thread.sleep(1000L);
-        //System.out.println(totalRequestsTime);
         return CompletableFuture.completedFuture(objectToJson(stats));
     }
 
@@ -145,15 +120,18 @@ public class Controller {
         return lst;
     }
 
-    public Map<Integer, List<String>> calculateMap(List<String> wordsInFile) {
-        Map<Integer, List<String>> map = new HashMap<>();
+    public Map<String, List<String>> calculateMapAndSet(List<String> wordsInFile) {
+        Map<String, List<String>> map = new HashMap<>();
         for (String w : wordsInFile) {
-            int length = w.length();
-            if (!map.containsKey(length)) {
-                map.put(length, new ArrayList<>());
+            lengthSet.add(w.length());
+            String length = String.valueOf(w.length());
+            String letter = String.valueOf(w.charAt(0));
+            String code = length + letter;
+            if (!map.containsKey(code)) {
+                map.put(code, new ArrayList<>());
             } else {
-                map.get(length).add(w);
-                map.put(length, map.get(length));
+                map.get(code).add(w);
+                map.put(code, map.get(code));
             }
         }
         return map;
