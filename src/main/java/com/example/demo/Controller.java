@@ -49,7 +49,7 @@ public class Controller {
             return CompletableFuture.completedFuture(objectToJson(new SimilarWords(new HashSet<>())));
 
         // check each word in the file to see if it is a permutation of word
-        Set<String> simWords = filterSimilarWords(wordsByLength.get(word.length()), word);
+        Set<String> simWords = filterSimilarWords(wordsByLength.get(length), word);
 
 //        Set<String> simWords = generatePermutation(new HashSet<>(), word, 0, word.length(), wordsInFile, new HashSet<>());
 //        simWords.remove(word);
