@@ -2,6 +2,9 @@ package com.example.demo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -21,27 +25,38 @@ public class Controller {
     private AtomicInteger totalRequests = new AtomicInteger(0);
     private AtomicLong totalRequestsTime = new AtomicLong(0);
     private List<String> wordsInFile = readFromFile("words_clean.txt");
-    private Map<Integer, List<String>> wordsByLength = calculateLengthMap(wordsInFile);
+    private Set<Integer> lengthSet = new HashSet<>();
+    private Map<String, List<String>> wordsMap = calculateMapAndSet(wordsInFile);
 
     @GetMapping("api/v1/similar")
     public String similarWords(@RequestParam(value = "word", defaultValue = "") String word) {
         AtomicLong startTime = new AtomicLong(System.nanoTime());
 
-        if (word.isEmpty()) {
+        if (word.isEmpty() || !lengthSet.contains(word.length())) {
             totalRequests.incrementAndGet();
             totalRequestsTime.addAndGet(System.nanoTime() - startTime.get());
             return objectToJson(new SimilarWords(new HashSet<>()));
         }
 
-        int length = word.length();
-        if (!wordsByLength.containsKey(length))
-            return objectToJson(new SimilarWords(new HashSet<>()));
+        List<String> words = new ArrayList<>();
+        Set<Character> wordLetters = new HashSet<>();
+        Set<String> simWords = new HashSet<>();
 
-        // check each word in the file to see if it is a permutation of 'word'
-        Set<String> simWords = filterSimilarWords(wordsByLength.get(length), word);
+        for (int i = 0; i < word.length(); i++) {
+            char ch = word.charAt(i);
+            if(!wordLetters.contains(ch)) {
+                wordLetters.add(ch);
+                List<String> wordList = wordsMap.get(String.valueOf(word.length()) + ch);
+                if(wordList != null)
+                    words.addAll(wordList);
+            }
+        }
 
-//         Set<String> simWords = generatePermutation(new HashSet<>(), word, 0, word.length(), wordsInFile, new HashSet<>());
-         simWords.remove(word);
+        // check each word in the file to see if it is a permutation of word
+        if(!words.isEmpty()) {
+            simWords = filterSimilarWords(words, word);
+            simWords.remove(word);
+        }
 
         SimilarWords similar = new SimilarWords(simWords);
         totalRequests.incrementAndGet();
@@ -51,24 +66,20 @@ public class Controller {
 
     public Set<String> filterSimilarWords(List<String> words, String word) {
         Set<String> res = new HashSet<>();
-        Set<Character> s = new HashSet<>();
         char maxChar = word.charAt(0);
         for (int i = 0; i < word.length(); i++) {
-            s.add(word.charAt(i));
             if (word.charAt(i) - 'a' > maxChar - 'a')
                 maxChar = word.charAt(i);
         }
         for (String w : words) {
             if (maxChar < w.charAt(0)) // this line is an optimization to reduce the amount of iterations
                 break;
-            if (s.contains(w.charAt(0))  // this line is also an optimization
-                    && checkSimilarity(word, w))
+            if (checkSimilarity(word, w))
                 res.add(w);
         }
         return res;
     }
 
-    // checks if 'word1' is a permutation of 'word2'
     public boolean checkSimilarity(String word1, String word2) {
         int[] count = new int[26];
         int i;
@@ -83,37 +94,11 @@ public class Controller {
         return true;
     }
 
-    // checks, for each permutation of 'str', if it is contained in the lexicographically ordered dictionary using binary search
-//    public Set<String> generatePermutation(Set<String> res, String str, int start, int end, List<String> words, Set<String> wordsSearched) {
-//        if (start == end - 1 && !wordsSearched.contains(str)) {
-//            wordsSearched.add(str);
-//            int i = Collections.binarySearch(words, str);
-//            if (i >= 0)
-//                res.add(str);
-//        }
-//        else {
-//            for (int j = start; j < end; j++) {
-//                str = swap(str, start, j);
-//                generatePermutation(res, str, start + 1, end, words, wordsSearched);
-//                str = swap(str, start, j);
-//            }
-//        }
-//        return res;
-//    }
-//
-//    public String swap(String s, int i, int j) {
-//        char[] ch = s.toCharArray();
-//        char temp = ch[i];
-//        ch[i] = ch[j];
-//        ch[j] = temp;
-//        return String.valueOf(ch);
-//    }
-
     @GetMapping("api/v1/stats")
-    public String stats() {
-        AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (int)(totalRequestsTime.get() / totalRequests.get()) : 0);
+    public CompletableFuture<String> stats() {
+        AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (int) (totalRequestsTime.get() / totalRequests.get()) : 0);
         Stats stats = new Stats(totalWords, totalRequests.get(), avgRequestTime.get());
-        return objectToJson(stats);
+        return CompletableFuture.completedFuture(objectToJson(stats));
     }
 
     public List<String> readFromFile(String pathName) {
@@ -126,15 +111,18 @@ public class Controller {
         return lst;
     }
 
-    public Map<Integer, List<String>> calculateLengthMap(List<String> wordsInFile) {
-        Map<Integer, List<String>> map = new HashMap<>();
+    public Map<String, List<String>> calculateMapAndSet(List<String> wordsInFile) {
+        Map<String, List<String>> map = new HashMap<>();
         for (String w : wordsInFile) {
-            int length = w.length();
-            if (!map.containsKey(length)) {
-                map.put(length, new ArrayList<>());
+            lengthSet.add(w.length());
+            String length = String.valueOf(w.length());
+            String letter = String.valueOf(w.charAt(0));
+            String code = length + letter;
+            if (!map.containsKey(code)) {
+                map.put(code, new ArrayList<>());
             } else {
-                map.get(length).add(w);
-                map.put(length, map.get(length));
+                map.get(code).add(w);
+                map.put(code, map.get(code));
             }
         }
         return map;
