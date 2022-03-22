@@ -53,15 +53,14 @@ public class Controller {
                 wordLetters.add(ch);
                 List<String> wordList = wordsMap.get(String.valueOf(word.length()) + ch);
                 if (wordList != null)
-                    words.addAll(wordList);
+                    simWords = filterSimilarWords(wordList, word, simWords);
             }
         }
-
-        // simWords will contain all similar words to 'word'
-        if (!words.isEmpty()) {
-            simWords = filterSimilarWords(words, word);
-            simWords.remove(word);
-        }
+        /*
+         remove 'word' if it is presented in the dictionary.
+         simWords will now contain all similar words to 'word' not including 'word'.
+        */
+        simWords.remove(word);
 
         SimilarWords similar = new SimilarWords(simWords);
         totalRequests.incrementAndGet();
@@ -69,13 +68,12 @@ public class Controller {
         return objectToJson(similar);
     }
 
-    public Set<String> filterSimilarWords(List<String> words, String word) {
-        Set<String> res = new HashSet<>();
+    public Set<String> filterSimilarWords(List<String> words, String word, Set<String> similarWords) {
         for (String w : words) {
             if (checkSimilarity(word, w))
-                res.add(w);
+                similarWords.add(w);
         }
-        return res;
+        return similarWords;
     }
 
     public boolean checkSimilarity(String word1, String word2) {
