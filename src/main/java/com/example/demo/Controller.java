@@ -49,7 +49,6 @@ public class Controller {
             return CompletableFuture.completedFuture(objectToJson(new SimilarWords(new HashSet<>())));
         }
 
-        List<String> words = new ArrayList<>();
         Set<Character> wordLetters = new HashSet<>();
         Set<String> simWords = new HashSet<>();
 
