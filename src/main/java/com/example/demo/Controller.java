@@ -10,15 +10,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RestController
 @Service
@@ -26,10 +24,12 @@ public class Controller {
     private static final int totalWords = 351075;
     private AtomicInteger totalRequests = new AtomicInteger(0);
     private AtomicLong totalRequestsTime = new AtomicLong(0);
-    private List<String> wordsInFile = readFromFile("words_clean.txt");
     private Set<Integer> lengthSet = new HashSet<>();
-    private Map<String, List<String>> wordsMap = calculateMapAndSet(wordsInFile);
+    private Map<String, List<String>> wordsMap = createMapAndSet("words_clean.txt");
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
+
+    public Controller() throws IOException {
+    }
 
     @GetMapping("api/v1/similar")
     @Async
@@ -113,33 +113,24 @@ public class Controller {
         Stats stats = new Stats(totalWords, totalRequests.get(), avgRequestTime.get());
         return CompletableFuture.completedFuture(objectToJson(stats));
     }
-
-    public List<String> readFromFile(String pathName) {
-        List<String> lst = new ArrayList<>();
-        try (Stream<String> lines = Files.lines(Paths.get(pathName))) {
-            lst = lines.collect(Collectors.toList());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return lst;
-    }
-
     /*
      creates a HashMap that maps a string to a list of words from the dictionary, in the following way:
      "4a" -> [list, of, words, in, length, 4, that, start, with 'a'].
      also creates a HashSet of all words' lengths in the dictionary.
      */
-    public Map<String, List<String>> calculateMapAndSet(List<String> wordsInFile) {
+    public Map<String, List<String>> createMapAndSet(String filePath) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
         Map<String, List<String>> map = new HashMap<>();
-        for (String w : wordsInFile) {
-            lengthSet.add(w.length());
-            String length = String.valueOf(w.length());
-            String letter = String.valueOf(w.charAt(0));
+        String word;
+        while ((word = reader.readLine()) != null){
+            lengthSet.add(word.length());
+            String length = String.valueOf(word.length());
+            String letter = String.valueOf(word.charAt(0));
             String code = length + letter;
             if (!map.containsKey(code)) {
                 map.put(code, new ArrayList<>());
             } else {
-                map.get(code).add(w);
+                map.get(code).add(word);
                 map.put(code, map.get(code));
             }
         }
