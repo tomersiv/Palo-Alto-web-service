@@ -125,7 +125,7 @@ public class Controller {
     }
 
     /*
-     creates a HashMap that maps a string to a list of words from the dictionary, for Example:
+     creates a HashMap that maps a string to a list of words from the dictionary, in the following way:
      "4a" -> [list, of, words, in, length, 4, that, start, with 'a'].
      also creates a HashSet of all words' lengths in the dictionary.
      */
