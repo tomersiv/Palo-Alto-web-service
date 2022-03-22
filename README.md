@@ -36,5 +36,5 @@ This function iterates over the words in a given list and, for each word, checks
 A constant-spaced count array of size 26 (number of lowercase English letters) is first created; then the value in the count array of the corresponding positions of characters in 'word1' is incremented while that of characters in 'word2' is decremented. Finally, if all count array values are 0, then the two words are considered a permutation of each other.
   
 ### Time and space complexity of the main algorithm:  
-* Time Complexity - O(N⋅K), where K is the length of the input string and N is the number of words in the dictionary file.
+* Time Complexity - O(N⋅K) in worst case, where K is the length of the input string and N is the number of words in the dictionary file. **Note that the actual time complexity is much less than O(N⋅K) because each "similar" GET request, only a small portion of the dictionary is proccesed due to the algorithm's optimizations.**
 * Space Complexity - O(N), where N is the number of words in the dictionary file.
