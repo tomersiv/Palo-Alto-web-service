@@ -25,14 +25,19 @@ public class AppRunner implements CommandLineRunner {
         long start = System.currentTimeMillis();
 
         // Kick of multiple, asynchronous tasks
-//        CompletableFuture<String> task1 = controller.similarWords("app");
-//        logger.info(task1.get());
-//        CompletableFuture<String> task2 = controller.similarWords("apple");
-//        CompletableFuture<String> task3 = controller.similarWords("asdas");
-//        CompletableFuture<String> task4 = controller.similarWords("aasdasd");
-//        CompletableFuture<String> task5 = controller.similarWords("aasdasdasdae");
-//        CompletableFuture<String> task6 = controller.similarWords("aasdasdasdasdqwe");
+//        CompletableFuture<String> task1 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/similar?word=app", String.class));
+//        CompletableFuture<String> task2 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/similar?word=apple", String.class));
+//        CompletableFuture<String> task3 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/similar?word=asd", String.class));
+//        CompletableFuture<String> task4 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/similar?word=father", String.class));
+//        CompletableFuture<String> task5 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/similar?word=asdasdawweq", String.class));
+//        CompletableFuture<String> task6 = CompletableFuture.supplyAsync(() -> restTemplate.getForObject("http://localhost:8000/api/v1/similar?word=mom", String.class));
 //        CompletableFuture<String> task7 = controller.stats();
+//        logger.info(task1.get());
+//        logger.info(task2.get());
+//        logger.info(task3.get());
+//        logger.info(task4.get());
+//        logger.info(task5.get());
+//        logger.info(task6.get());
 //        logger.info(task7.get());
 
         for(int i = 0; i < 99; i++){

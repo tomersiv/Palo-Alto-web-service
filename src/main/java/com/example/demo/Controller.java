@@ -36,31 +36,32 @@ public class Controller {
     public CompletableFuture<String> similarWords(@RequestParam(value = "word", defaultValue = "") String word) {
         logger.info("Finding similar words to " + word);
         AtomicLong startTime = new AtomicLong(System.nanoTime());
+        Set<String> simWords = new HashSet<>();
+        int wordLength = word.length();
 
         /*
          if 'word' is empty or there are no words with the same length as 'word' in the dictionary,
          there are no similar words to 'word'.
         */
-        if (word.isEmpty() || !lengthSet.contains(word.length())) {
+        if (word.isEmpty() || !lengthSet.contains(wordLength)) {
             totalRequests.incrementAndGet();
             AtomicLong duration = new AtomicLong(System.nanoTime() - startTime.get());
             System.out.println("request handle time: " + (duration));
             totalRequestsTime.addAndGet(duration.get());
-            return CompletableFuture.completedFuture(objectToJson(new SimilarWords(new HashSet<>())));
+            return CompletableFuture.completedFuture(objectToJson(new SimilarWords(simWords)));
         }
 
         Set<Character> wordLetters = new HashSet<>();
-        Set<String> simWords = new HashSet<>();
 
         /*
          creates a list of potential similar words to 'word' from the dictionary, for example:
          'word' = "apple" --> 'potential_list' = [list, of, all, words, that, start, with, either, 'a', 'p', 'l' or 'e', and, have, the, same, length, as, "apple"]
         */
-        for (int i = 0; i < word.length(); i++) {
+        for (int i = 0; i < wordLength; i++) {
             char ch = word.charAt(i);
             if(!wordLetters.contains(ch)) {
                 wordLetters.add(ch);
-                List<String> wordList = wordsMap.get(String.valueOf(word.length()) + ch);
+                List<String> wordList = wordsMap.get(String.valueOf(wordLength) + ch);
                 if(wordList != null)
                     simWords = filterSimilarWords(wordList, word, simWords);
             }
@@ -106,8 +107,9 @@ public class Controller {
     public CompletableFuture<String> stats() throws InterruptedException {
         logger.info("Calculating stats...");
         Thread.sleep(2000);
-        AtomicInteger avgRequestTime = new AtomicInteger(totalRequests.get() != 0 ? (int) (totalRequestsTime.get() / totalRequests.get()) : 0);
-        Stats stats = new Stats(totalWords, totalRequests.get(), avgRequestTime.get());
+        int total_requests = totalRequests.get();
+        AtomicInteger avgRequestTime = new AtomicInteger(total_requests != 0 ? (int) (totalRequestsTime.get() / total_requests) : 0);
+        Stats stats = new Stats(totalWords, total_requests, avgRequestTime.get());
         return CompletableFuture.completedFuture(objectToJson(stats));
     }
     /*
@@ -120,16 +122,15 @@ public class Controller {
         Map<String, List<String>> map = new HashMap<>();
         String word;
         while ((word = reader.readLine()) != null){
-            lengthSet.add(word.length());
-            String length = String.valueOf(word.length());
+            int wordLength = word.length();
+            lengthSet.add(wordLength);
+            String length = String.valueOf(wordLength);
             String letter = String.valueOf(word.charAt(0));
             String code = length + letter;
             if (!map.containsKey(code)) {
                 map.put(code, new ArrayList<>());
-            } else {
-                map.get(code).add(word);
-                map.put(code, map.get(code));
             }
+                map.get(code).add(word);
         }
         return map;
     }
