@@ -15,50 +15,27 @@
 ## Algorithm Explanation:
 By using the @GetMapping annotation, we ensure that HTTP GET requests to /api/v1/similar and to api/v1/stats are mapped to 'similarWords' and 'stats' functions, respectively.
 ### The 'similarWords' function:
-This function builds a list that contains all words that are similar (a permutation) of a given word 'w', but not including 'w' in /api/v1/similar?word=w, and returns a json object of the list. The program supports two different algorithms for building the list of similar words, each with its own advantages depending on the size of the input word and the number of words in the dictionary.  
-
-**Algorithm 1:**  
-This algorithm iterates over the words in the dictionary file, and for each word it checks whether or not it is a permutation of the input string.
-The algorithm for checking if 'word1' is a permutation of 'word2' is as follows: 
-A constant-spaced count array of size 26 (number of lowercase English letters) is first created; then the value in the count array of the corresponding positions of characters in 'word1' is incremented while that of characters in 'word2' is decremented. Finally, if all count array values are 0, then the two words are considered a permutation of each other.  
-  
-  
-**Some optimizations that were made to decrease the average processing time while iterating over the dictionary file looking for similar words to the input string:**
-- Word similarity is checked only if the length of both strings is equal and the input string's chars contains the first char of a word in the list (in O(1), using HashSet).
-- The input string's char with the maximal value is calculated and if a word in the list starts with a char that has a greater value than this maximum, then the iteration is stopped. This approach is based on the fact that the words in the dictionary file are sorted lexicographically.
-      
-****Time Complexity - O(N⋅K), where K is the length of the input string and N is the number of words in the dictionary file.***   
-****Space Complexity - O(1)***
-
-**Algorithm 2:**  
-This algorithm iterates over all permutations of the input string and, for each permutation, checks if the dictionary contains it, using binary search. **Note that a binary search on the dictionary file can be used, because the strings in that file are sorted lexicographically. Also Note that if the current permutation has already been searched in the diciotnary, it doesn't need to be searched again. In order to support this optimization, a HashSet 'wordsSearched' is maintained to track all permutations of a given word that have already been searched in the dictionary.**  
-  
-  
-The algorithm for generating all permutations of a given string 'str' uses the backtracking approach:  
-- The 'generatePermutation' function considers the first index of the given string.
-- **Stopping condition:** If the index is end - 1, i.e. the end of the string, then the current permutation is completed.
-- else: 
-  - for j = start to end - 1:
-    - Swap str[j] and str[start].
-    - Construct all other possible permutations, from generatePermutation(start + 1).
-    - Backtrack again, i.e. swap(str[j], str[start]).  
-  
-****Time Complexity - O(K!⋅K⋅logN), where K is the length of the input string and N is the number of words in the dictionary file.***  
-****Space Complexity - O(K!), where K is the length of the input string. This is because the function will be called recursively and will be stored in the call stack for all K! permutations.***
-    
-  **An illustration of getting all permutations of the string 'ABC' according to the algorithm:**  
- 
- ![This is an image](https://static.javatpoint.com/programs/images/program-to-find-all-the-permutations-of-a-string.png)   
-   
-     
-### *By default, the program uses the first algorithm. Upon checking both algorithms' performance, I noticed that the second algorithm performs better (about 10 times faster) when the input string's length is between 1 and 7; in any other case, the first algorithm is far more preferable.*    
-### * *To support the second algorithm (in case the input strings' length is between 1-7),  simply comment line 36 and uncomment lines 38, 39, the 'generatePermutation' function and the 'swap' function in the Controller class.*
-  
-  
-  
-  
+This function builds a list of all words that are similar (a permutation) to a given word 'w', but not including 'w' in /api/v1/similar?word=w, and returns a json object of this list.   
 ### The 'stats' function:
 This function returns a json object consisting of three integers: totalWords, totalRequests and avgProcessingTimeNs. 
 
 - **Calculating totalRequests:** Manages a counter that is incremented every time a HTTP Get request to /api/v1/similar is performed.
 - **Calculating avgProcessingTimeNs:** The duration time of all GET requests to /api/v1/similar are first accumulated and then divided by the total amount of GET requests. The duration time of each GET request to /api/v1/similar is calculated by managing two variables that capture the time, in the beginning and in the end of the 'similarWords' function; the difference between these variables is the duration time. 
+
+### Main algorithm for creating the list of similar words: 
+1. Create a HashMap that maps a string to a list of words from the dictionary, in the following way:
+     "8b" -> [list, of, all, words, in, length, 8, that, start, with, 'b']. 
+3. Create a HashSet of all words' lengths in the dictionary.
+4. If the input word is an empty string, or the HashSet doesn't contain the input word's length, then there are no similar words to the input word in the dictionary (because the dictionary has no empty strings, and a permutation of the input word must has the same length). 
+5. Iterate over all input word's unique chars and, for each char, get the list of all words that start with that char and has the same length as the input word using the HashMap. For each such list, call the 'filterSimilarWords' function.  
+6. if the input word is included in our final list of similar words, remove it.
+### The 'filterSimilarWords' function:    
+This function iterates over the words in a given list and, for each word, checks whether or not it is a permutation of the input string.  
+
+**The algorithm for checking if 'word1' is a permutation of 'word2' is as follows:**   
+A constant-spaced count array of size 26 (number of lowercase English letters) is first created; then the value in the count array of the corresponding positions of characters in 'word1' is incremented while that of characters in 'word2' is decremented. Finally, if all count array values are 0, then the two words are considered a permutation of each other.
+  
+### Time and space complexity of the main algorithm:  
+* Time Complexity - O(N⋅K) in worst case, where K is the length of the input string and N is the number of words in the dictionary file.  
+ **Note that the actual time complexity is much less than O(N⋅K) because each "similar" GET request, only a small portion of the dictionary is proccesed due to the algorithm's optimizations.**
+* Space Complexity - O(N), where N is the number of words in the dictionary file.
